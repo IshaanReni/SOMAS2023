@@ -65,6 +65,10 @@ type IBaseBiker interface {
 	HandleForcesMessage(msg ForcesMessage)
 
 	GetAllMessages([]IBaseBiker) []messaging.IMessage[IBaseBiker]
+
+	GetReputation() map[uuid.UUID]float64 // get reputation value of all other agents
+	QueryReputation(uuid.UUID) float64    // query for reputation value of specific agent with UUID
+	SetReputation(uuid.UUID, float64)     // set reputation value of specific agent with UUID
 }
 
 type BikerAction int
@@ -84,6 +88,7 @@ type BaseBiker struct {
 	megaBikeId                       uuid.UUID  // if they are not on a bike it will be 0
 	gameState                        IGameState // updated by the server at every round
 	allocationParams                 ResourceAllocationParams
+	reputation                       map[uuid.UUID]float64 // record reputation for other agents in float
 }
 
 func (bb *BaseBiker) GetEnergyLevel() float64 {
@@ -291,6 +296,26 @@ func (bb *BaseBiker) GetFellowBikers() []IBaseBiker {
 	bike := bb.gameState.GetMegaBikes()[bb.megaBikeId]
 	fellowBikers := bike.GetAgents()
 	return fellowBikers
+}
+
+// GetReputation map from agent, need to check if nil when call this function
+func (bb *BaseBiker) GetReputation() map[uuid.UUID]float64 {
+	return bb.reputation
+}
+
+// QueryReputation of specific agent with given ID, if there is no record for given agentID then return 0
+func (bb *BaseBiker) QueryReputation(agentId uuid.UUID) float64 {
+	if bb.reputation == nil {
+		return 0
+	}
+	return bb.reputation[agentId]
+}
+
+func (bb *BaseBiker) SetReputation(agentId uuid.UUID, reputation float64) {
+	if bb.reputation == nil {
+		bb.reputation = make(map[uuid.UUID]float64)
+	}
+	bb.reputation[agentId] = reputation
 }
 
 // an agent will have to rank the agents that are trying to join and that they will try to
