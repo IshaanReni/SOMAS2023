@@ -125,7 +125,7 @@ func (s *Server) ProcessJoiningRequests() {
 	}
 }
 
-// VoteToKickOutAgent
+/* // VoteToKickOutAgent
 func VoteToKickOutAgent(megaBike *objects.MegaBike, targetAgentID uuid.UUID) bool {
 	agents := megaBike.GetAgents()
 	yesVotes := 0
@@ -139,7 +139,7 @@ func VoteToKickOutAgent(megaBike *objects.MegaBike, targetAgentID uuid.UUID) boo
 	}
 
 	return yesVotes > len(agents)/2
-}
+} */
 
 func (s *Server) GetDirectionProposals(agent objects.IBaseBiker, proposedDirections map[uuid.UUID][]uuid.UUID) {
 	// --------------------- VOTING ROUTINE - STEP 1 --------------------------
