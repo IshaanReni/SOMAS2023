@@ -10,12 +10,16 @@ import (
 	"github.com/google/uuid"
 )
 
-const LootBoxCount = BikerAgentCount
-const MegaBikeCount = BikerAgentCount / 5
+const LootBoxCount = BikerAgentCount * 2
+const MegaBikeCount = BikerAgentCount / 2
+const BikerAgentCount = 6
 
 type IBaseBikerServer interface {
 	baseserver.IServer[objects.IBaseBiker]
 	GetMegaBikes() map[uuid.UUID]objects.IMegaBike
+	GetLootBoxes() map[uuid.UUID]objects.ILootBox
+	GetAudi() objects.IAudi
+	GetJoiningRequests() map[uuid.UUID][]uuid.UUID
 }
 
 type Server struct {
