@@ -11,18 +11,20 @@ import (
 )
 
 func (s *Server) RunRoundLoop() {
+	// Capture dump of starting state
+	gameState := s.NewGameStateDump()
 
 	// take care of agents that want to leave the bike and of the acceptance/ expulsion process
-	s.RunBikeSwitch()
+	s.RunBikeSwitch(gameState)
 
 	// get the direction decisions and pedalling forces
 	s.RunActionProcess()
 
 	// The Audi makes a decision
-	s.audi.UpdateGameState(s)
+	s.audi.UpdateGameState(gameState)
 
 	// Move the mega bikes
-	for _, bike := range s.GetMegaBikes() {
+	for _, bike := range s.megaBikes {
 		// update mass dependent on number of agents on bike
 		bike.UpdateMass()
 		s.MovePhysicsObject(bike)
@@ -51,9 +53,9 @@ func (s *Server) RunRoundLoop() {
 	}
 }
 
-func (s *Server) RunBikeSwitch() {
+func (s *Server) RunBikeSwitch(gameState GameStateDump) {
 	// check if agents want ot leave the bike on this round
-	s.GetLeavingDecisions()
+	s.GetLeavingDecisions(gameState)
 	//process the kickout request
 	s.HandleKickoutProcess()
 	// process joining requests from last round
@@ -94,11 +96,7 @@ func (s *Server) HandleKickoutProcess() {
 		// perform kickout
 		leaderKickedOut := false
 		for _, agentID := range agentsVotes {
-			bike.RemoveAgent(agentID)
-			delete(s.megaBikeRiders, agentID)
-			if agent, ok := s.GetAgentMap()[agentID]; ok {
-				agent.ToggleOnBike()
-			}
+			s.RemoveAgentFromBike(s.GetAgentMap()[agentID])
 			// if the leader was kicked out vote for a new one
 			if agentID == bike.GetRuler() {
 				leaderKickedOut = true
@@ -112,10 +110,10 @@ func (s *Server) HandleKickoutProcess() {
 	}
 }
 
-func (s *Server) GetLeavingDecisions() {
+func (s *Server) GetLeavingDecisions(gameState objects.IGameState) {
 	for agentId, agent := range s.GetAgentMap() {
 		fmt.Printf("Agent %s updating state \n", agentId)
-		agent.UpdateGameState(s)
+		agent.UpdateGameState(gameState)
 		agent.UpdateAgentInternalState()
 		switch agent.DecideAction() {
 		case objects.Pedal:
@@ -128,15 +126,7 @@ func (s *Server) GetLeavingDecisions() {
 
 			// the request is handled at the beginning of the next round, so the moving
 			// will only be finalised then
-			agent.SetBike(agent.ChangeBike())
-			agent.ToggleOnBike()
-
-			// the biker needs to be removed from the current bike as well
-			// it will be added to the desired one (if accepted) at the beginning of next loop
-			if oldBikeId, ok := s.megaBikeRiders[agent.GetID()]; ok {
-				s.megaBikes[oldBikeId].RemoveAgent(agent.GetID())
-				delete(s.megaBikeRiders, agent.GetID())
-			}
+			s.RemoveAgentFromBike(agent)
 		default:
 			panic("agent decided invalid action")
 		}
@@ -155,8 +145,7 @@ func (s *Server) ProcessJoiningRequests() {
 			for i, pendingAgent := range pendingAgents {
 				if i <= utils.BikersOnBike {
 					acceptedAgent := s.GetAgentMap()[pendingAgent]
-					acceptedAgent.ToggleOnBike()
-					s.SetBikerBike(acceptedAgent, bikeID)
+					s.AddAgentToBike(acceptedAgent)
 				} else {
 					break
 				}
@@ -211,8 +200,7 @@ func (s *Server) ProcessJoiningRequests() {
 			for i := 0; i < min(emptySpaces, len(acceptedRanked)); i++ {
 				accepted := acceptedRanked[i]
 				acceptedAgent := s.GetAgentMap()[accepted]
-				acceptedAgent.ToggleOnBike()
-				s.SetBikerBike(acceptedAgent, bikeID)
+				s.AddAgentToBike(acceptedAgent)
 			}
 		}
 	}
@@ -304,7 +292,7 @@ func (s *Server) AudiCollisionCheck() {
 				fmt.Printf("Agent %s killed by Audi \n", agentToDelete.GetID())
 				s.RemoveAgent(agentToDelete)
 			}
-			if utils.AudiRemoveMegaBike {
+			if utils.AudiRemovesMegaBike {
 				fmt.Printf("Megabike %s removed by Audi \n", megabike.GetID())
 				delete(s.megaBikes, megabike.GetID())
 			}

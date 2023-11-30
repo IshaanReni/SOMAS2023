@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"os"
 	"SOMAS2023/internal/common/utils"
-	"encoding/json"
-	"fmt"
-	"os"
+
 
 	baseserver "github.com/MattSScott/basePlatformSOMAS/BaseServer"
 	"github.com/google/uuid"
@@ -28,8 +26,9 @@ type IBaseBikerServer interface {
 	SetBikerBike(biker objects.IBaseBiker, bike uuid.UUID)
 	RulerElection(agents []objects.IBaseBiker, governance utils.Governance) uuid.UUID
 	RunRulerAction(bike objects.IMegaBike) uuid.UUID
+	NewGameStateDump() GameStateDump
 	RunDemocraticAction(bike objects.IMegaBike, weights map[uuid.UUID]float64) uuid.UUID
-	GetLeavingDecisions()
+	GetLeavingDecisions(gameState objects.IGameState)
 	HandleKickoutProcess()
 	ProcessJoiningRequests()
 	RunActionProcess()
