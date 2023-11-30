@@ -25,14 +25,15 @@ type ResourceAllocationParams struct {
 type IBaseBiker interface {
 	baseAgent.IAgent[IBaseBiker]
 
-	DecideGovernance() utils.Governance
-	DecideAction() BikerAction                                      // ** determines what action the agent is going to take this round. (changeBike or Pedal)
-	DecideForce(direction uuid.UUID)                                // ** defines the vector you pass to the bike: [pedal, brake, turning]
-	DecideJoining(pendinAgents []uuid.UUID) map[uuid.UUID]bool      // ** decide whether to accept or not accept bikers, ranks the ones
-	ChangeBike() uuid.UUID                                          // ** called when biker wants to change bike, it will choose which bike to try and join
-	ProposeDirection() uuid.UUID                                    // ** returns the id of the desired lootbox based on internal strategy
-	FinalDirectionVote(proposals []uuid.UUID) voting.LootboxVoteMap // ** stage 3 of direction voting
-	DecideAllocation() voting.IdVoteMap                             // ** decide the allocation parameters
+	DecideGovernance() voting.GovernanceVote
+	DecideAction() BikerAction                                                  // ** determines what action the agent is going to take this round. (changeBike or Pedal)
+	DecideForce(direction uuid.UUID)                                            // ** defines the vector you pass to the bike: [pedal, brake, turning]
+	DecideJoining(pendinAgents []uuid.UUID) map[uuid.UUID]bool                  // ** decide whether to accept or not accept bikers, ranks the ones
+	ChangeBike() uuid.UUID                                                      // ** called when biker wants to change bike, it will choose which bike to try and join
+	ProposeDirection() uuid.UUID                                                // ** returns the id of the desired lootbox based on internal strategy
+	FinalDirectionVote(proposals map[uuid.UUID]uuid.UUID) voting.LootboxVoteMap // ** stage 3 of direction voting
+	DecideAllocation() voting.IdVoteMap                                         // ** decide the allocation parameters
+	VoteForKickout() map[uuid.UUID]int
 	VoteDictator() voting.IdVoteMap
 	VoteLeader() voting.IdVoteMap
 
@@ -43,12 +44,6 @@ type IBaseBiker interface {
 
 	// leader functions
 	LeadDirection() uuid.UUID
-	VoteForKickout() map[uuid.UUID]int
-	LeaderAgentWeights() map[uuid.UUID]float64               // ** called only when the agent is the leader
-	DecideKickoutWeights() map[uuid.UUID]float64             // ** decide weights for kickout voting (leader)
-	DecideJoiningWeights() map[uuid.UUID]float64             // ** decide weights for kickout voting (leader)
-	DecideDirectionWeights() map[uuid.UUID]float64           // ** decide weights for kickout voting (leader)
-	DecideWeights(action utils.Action) map[uuid.UUID]float64 // decide on weights for various actions
 
 	GetForces() utils.Forces        // returns forces for current round
 	GetColour() utils.Colour        // returns the colour of the lootbox that the agent is currently seeking
@@ -355,7 +350,7 @@ func (bb *BaseBiker) ResetPoints() {
 // this function will contain the agent's strategy on deciding which direction to go to
 // the default implementation returns an equal distribution over all options
 // this will also be tried as returning a rank of options
-func (bb *BaseBiker) FinalDirectionVote(proposals []uuid.UUID) voting.LootboxVoteMap {
+func (bb *BaseBiker) FinalDirectionVote(proposals map[uuid.UUID]uuid.UUID) voting.LootboxVoteMap {
 	votes := make(voting.LootboxVoteMap)
 	totOptions := len(proposals)
 	normalDist := 1.0 / float64(totOptions)
