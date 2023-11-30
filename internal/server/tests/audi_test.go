@@ -6,12 +6,17 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"testing"
+
 )
 
 func TestAudiCollisionProcess(t *testing.T) {
 	it := 1
 	s := server.Initialize(it)
 	nAgentToDelete := 0
+	gs := s.NewGameStateDump()
+	for _, agent := range s.GetAgentMap() {
+		agent.UpdateGameState(gs)
+	}
 	for _, anyBike := range s.GetMegaBikes() {
 		agentsOnBike := anyBike.GetAgents()
 		nAgentToDelete = len(agentsOnBike)
