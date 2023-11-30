@@ -30,6 +30,8 @@ func (s *Server) RunRoundLoop() {
 
 	// Move the audi
 	s.MovePhysicsObject(s.audi)
+	// Check Audi collision
+	s.AudiCollisionCheck()
 
 	// Lootbox Distribution
 	s.LootboxCheckAndDistributions()
@@ -290,6 +292,24 @@ func (s *Server) GetWinningDirection(finalVotes map[uuid.UUID]voting.LootboxVote
 
 	// TODO integrate voting functions from group 8
 	return voting.WinnerFromDist(IfinalVotes, weights)
+}
+
+func (s *Server) AudiCollisionCheck() {
+	// Check collision for audi with any megaBike
+	for bikeid, megabike := range s.GetMegaBikes() {
+		if s.audi.CheckForCollision(megabike) {
+			// Collision detected
+			fmt.Printf("Collision detected between Audi and MegaBike %s \n", bikeid)
+			for _, agentToDelete := range megabike.GetAgents() {
+				fmt.Printf("Agent %s killed by Audi \n", agentToDelete.GetID())
+				s.RemoveAgent(agentToDelete)
+			}
+			if utils.AudiRemoveMegaBike {
+				fmt.Printf("Megabike %s removed by Audi \n", megabike.GetID())
+				delete(s.megaBikes, megabike.GetID())
+			}
+		}
+	}
 }
 
 func (s *Server) LootboxCheckAndDistributions() {
