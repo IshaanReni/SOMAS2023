@@ -14,6 +14,12 @@ const RespawnAtRound = true
 const RoundIterations = 100
 
 /*
+Server Parameters
+*/
+const ReplenishLootBoxes bool = true
+const ReplenishMegaBikes bool = true
+
+/*
 Physics Parameters
 */
 const MassBike float64 = 1.0
