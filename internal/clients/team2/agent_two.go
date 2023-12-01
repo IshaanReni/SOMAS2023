@@ -16,38 +16,11 @@ import (
 	"SOMAS2023/internal/common/utils"
 	"fmt"
 
-	// "SOMAS2023/internal/common/utils"
 	"math"
 	"sort"
 
 	"github.com/google/uuid"
 )
-
-type IBaseBiker interface {
-	objects.IBaseBiker
-}
-
-type AgentTwo struct {
-	// BaseBiker represents a basic biker agent.
-	*objects.BaseBiker
-	// CalculateSocialCapitalOtherAgent: (trustworthiness - cosine distance, social networks - friends, institutions - num of rounds on a bike)
-	SocialCapital      map[uuid.UUID]float64 // Social Captial of other agents
-	Trust              map[uuid.UUID]float64 // Trust of other agents
-	Institution        map[uuid.UUID]float64 // Institution of other agents
-	Network            map[uuid.UUID]float64 // Network of other agents
-	GameIterations     int32                 // Keep track of game iterations // TODO: WHAT IS THIS?
-	forgivenessCounter int32                 // Keep track of how many rounds we have been forgiving an agent
-	gameState          objects.IGameState    // updated by the server at every round
-	megaBikeId         uuid.UUID
-	bikeCounter        map[uuid.UUID]int32
-	actions            []Action
-	soughtColour       utils.Colour // the colour of the lootbox that the agent is currently seeking
-	onBike             bool
-	energyLevel        float64 // float between 0 and 1
-	points             int
-	forces             utils.Forces
-	allocationParams   objects.ResourceAllocationParams
-}
 
 func NewBaseTeam2Biker(agentId uuid.UUID) *AgentTwo {
 	color := utils.GenerateRandomColour()
@@ -73,20 +46,6 @@ func NewBaseTeam2Biker(agentId uuid.UUID) *AgentTwo {
 	}
 }
 
-const (
-	TrustWeight       = 1.0
-	InstitutionWeight = 0.0
-	NetworkWeight     = 0.0
-)
-
-type Action struct {
-	AgentID         uuid.UUID
-	Action          string
-	Force           utils.Forces
-	GameLoop        int32
-	lootBoxlocation ForceVector //utils.Coordinates
-}
-
 // TODO: function CalculateSocialCapital
 func (a *AgentTwo) CalculateSocialCapital() {
 	// Implement this method
@@ -96,7 +55,7 @@ func (a *AgentTwo) CalculateSocialCapital() {
 	// Calculate social networks of all agents
 	// Calculate institutions of all agents
 	// Iterate over each agent
-	for agentID, _ := range a.Trust {
+	for agentID := range a.Trust {
 		trustworthiness := a.Trust[agentID]
 		institution := a.Institution[agentID]
 		network := a.Network[agentID] // Assuming these values are already calculated
@@ -105,35 +64,6 @@ func (a *AgentTwo) CalculateSocialCapital() {
 	}
 }
 
-type ForceVector struct {
-	X float64
-	Y float64
-}
-
-func forcesToVectorConversion(force utils.Forces) ForceVector {
-	xCoordinate := force.Pedal * float64(math.Cos(float64(math.Pi*force.Turning.SteeringForce)))
-	yCoordinate := force.Pedal * float64(math.Sin(float64(math.Pi*force.Turning.SteeringForce)))
-
-	newVector := ForceVector{X: xCoordinate, Y: yCoordinate}
-	return newVector
-}
-
-func dotProduct(v1, v2 ForceVector) float64 {
-	return v1.X*v2.X + v1.Y*v2.Y
-}
-
-func magnitude(v ForceVector) float64 {
-	return math.Sqrt(v.X*v.X + v.Y*v.Y)
-}
-
-func cosineSimilarity(v1, v2 ForceVector) float64 {
-	return dotProduct(v1, v2) / (magnitude(v1) * magnitude(v2))
-}
-
-const (
-	forgivenessFactor = 0.5
-)
-
 func (a *AgentTwo) updateTrustworthiness(agentID uuid.UUID, actualAction, expectedAction ForceVector) {
 	// Calculates the cosine Similarity of actual and expected vectors. One issue is that it does not consider magnitude, only direction
 	// TODO: Take magnitude into account
@@ -141,9 +71,6 @@ func (a *AgentTwo) updateTrustworthiness(agentID uuid.UUID, actualAction, expect
 
 	// CosineSimilarity output ranges from -1 to 1. Need to scale it back to 0-1
 	normalisedTrustworthiness := (similarity + 1) / 2
-
-	// Moving average
-	// a.Trust[agentID] = (forgivenessFactor*a.Trust[agentID]*float64(a.GameIterations) + normalisedTrustworthiness) / (float64(a.GameIterations) + 1)
 
 	// Bad action but with high trustworthiness in prev rounds, we feel remorse and we forgive them
 	if a.Trust[agentID] > normalisedTrustworthiness && a.forgivenessCounter <= 3 { // If they were trustworthy in prev rounds, we feel remorse and we forgive them
