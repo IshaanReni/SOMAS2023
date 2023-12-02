@@ -49,10 +49,30 @@ func (a *AgentTwo) updateTrustworthiness(agentID uuid.UUID, actualAction, expect
 
 }
 
-// func (a *AgentTwo) updateInstitution(agentID uuid.UUID) float64 {
+// Called by Events to obtain Event Value for update Institution
+// Assume what they broadcast is the truth
+// TODO: Obtain actual action performed from messaging
+// 1. Rule Adhereance (Follow leader biker/ dictator)
+func (a *AgentTwo) RuleAdhereanceValue(agentID uuid.UUID) float64 {
 
-// 	// return 0.5 // This is just a placeholder value
-// }
+	// magnitude :=
+	similarity := cosineSimilarity(actualAction, expectedAction)
+
+	normalisedTrustworthiness := similarity * magnitude()
+	forceApplied := a.forces.Pedal
+	return normalisedTrustworthiness * forceApplied
+}
+
+// Assume institution rules is only broadcasted within the same bike
+// Events to update Institution
+// 1. Rule Adhereance (Follow leader biker/ dictator )
+// 2. Voting
+// 3. Kicked out of bike
+// 4. Accepted to bike
+// 5. Role Assignment (Voted to be leader/ Dictator)
+func (a *AgentTwo) updateInstitution(agentID uuid.UUID, weight float64, EventValue float64) {
+	a.Institution[agentID] += EventValue * weight
+}
 
 // func (a *AgentTwo) updateNetwork(agentID uuid.UUID) float64 {
 // 	// return 0.5 // This is just a placeholder value

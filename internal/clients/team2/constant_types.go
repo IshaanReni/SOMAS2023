@@ -7,11 +7,20 @@ import (
 	"github.com/google/uuid"
 )
 
-// Constants related to the calculation of social capital and trustworthiness
+// Constants related to the calculation of social capital
 const (
 	TrustWeight       = 1.0 // Weight for trust in social capital calculation
 	InstitutionWeight = 0.0 // Weight for institution affiliation in social capital calculation
 	NetworkWeight     = 0.0 // Weight for network strength in social capital calculation
+)
+
+// Constants related to the calculation of Institution
+const (
+	InstitutionEventWeight_Adhereance = 0.0 // Weight for rule adhereance in institution calculation
+	InstitutionEventWeight_Voting     = 0.0 // Weight for voting in institution calculation
+	InstitutionEventWeight_KickedOut  = 0.0 // Weight for being kicked out of bike in institution calculation
+	InstitutionEventWeight_Accepted   = 0.0 // Weight for being accepted to bike in institution calculation
+	InstitutionEventWeight_VotedRole  = 0.0 // Weight for role assignment in institution calculation
 )
 
 const (
