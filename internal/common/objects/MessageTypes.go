@@ -1,6 +1,8 @@
 package objects
 
 import (
+	"SOMAS2023/internal/common/utils"
+
 	"github.com/MattSScott/basePlatformSOMAS/messaging"
 	"github.com/google/uuid"
 )
@@ -52,4 +54,15 @@ func (msg LootboxMessage) InvokeMessageHandler(agent IBaseBiker) {
 
 func (msg GovernanceMessage) InvokeMessageHandler(agent IBaseBiker) {
 	agent.HandleGovernanceMessage(msg)
+}
+
+// OUR FORCES MESSAGE
+type ForcesMessage struct {
+	messaging.BaseMessage[IBaseBiker]
+	AgentId     uuid.UUID    // the agent whose forces are shared
+	AgentForces utils.Forces // the forces
+}
+
+func (msg ForcesMessage) InvokeMessageHandler(agent IBaseBiker) {
+	agent.HandleForcesMessage(msg)
 }
