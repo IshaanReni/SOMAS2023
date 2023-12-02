@@ -15,6 +15,11 @@ const (
 )
 
 const (
+	SocialEventWeight_AgentOnBike      = 1
+	SocialEventWeight_CollectedLootbox = 1
+)
+
+const (
 	forgivenessFactor = 0.5 // Factor used in trustworthiness update calculations
 )
 

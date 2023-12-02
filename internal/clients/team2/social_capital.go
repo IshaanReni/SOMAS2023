@@ -60,23 +60,35 @@ func (a *AgentTwo) updateTrustworthiness(agentID uuid.UUID, actualAction, expect
 /// Networks
 /// ///
 
+func (a *AgentTwo) UpdateNetworkBike(weight float64) {
+	// Update Network of SC.
+	// Simply add 1 to all fellow bikers.
+	bikeId := a.GetBike()
+	fellowBikers := a.gameState.GetMegaBikes()[bikeId].GetAgents()
+	for _, biker := range fellowBikers {
+		bikerId := biker.GetID()
+		if _, ok := a.Network[bikerId]; !ok {
+			a.Network[bikerId] = 0.0
+		}
+		a.Network[bikerId] += 1.0 * weight
+	}
+}
+
 func (a *AgentTwo) UpdateEnergyLevel(energyLevel float64) {
 	// Signal that a loot box has collected.
 	// We treat this as a social event and update the Network parameter in Social Capital.
 	if energyLevel > 0.0 {
-		bikeId := a.GetBike()
-		fellowBikers := a.gameState.GetMegaBikes()[bikeId].GetAgents()
-		for _, biker := range fellowBikers {
-			bikerId := biker.GetID()
-			if _, ok := a.Network[bikerId]; !ok {
-				a.Network[bikerId] = 0.0
-			}
-			a.Network[bikerId] += 1.0 * energyLevel
-		}
+		a.UpdateNetworkBike(SocialEventWeight_CollectedLootbox)
 	}
 
 	// Update energy level.
 	a.energyLevel += energyLevel
+}
+
+func (a *AgentTwo) Ping() {
+	// Signal cooperation.
+	// We treat this as a social event and update the Network parameter in Social Capital.
+	a.UpdateNetworkBike(SocialEventWeight_AgentOnBike)
 }
 
 // // func (a *AgentTwo) updateInstitution(agentID uuid.UUID) float64 {

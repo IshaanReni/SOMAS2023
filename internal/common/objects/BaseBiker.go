@@ -49,6 +49,8 @@ type IBaseBiker interface {
 	UpdateEnergyLevel(energyLevel float64) // increase the energy level of the agent by the allocated lootbox share or decrease by expended energy
 	UpdateGameState(gameState IGameState)  // sets the gameState field at the beginning of each round
 	ToggleOnBike()                         // called when removing or adding a biker on a bike
+
+	Ping() // Called at the start of each round by the server
 }
 
 type BikerAction int
@@ -272,6 +274,10 @@ func (bb *BaseBiker) GetGameState() IGameState {
 
 func (bb *BaseBiker) GetMegaBikeId() uuid.UUID {
 	return bb.megaBikeId
+}
+
+func (bb *BaseBiker) Ping() {
+	return
 }
 
 // an agent will have to rank the agents that are trying to join and that they will try to
