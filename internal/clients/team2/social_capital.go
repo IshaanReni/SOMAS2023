@@ -1,7 +1,9 @@
 package team2
 
 import (
+	"SOMAS2023/internal/common/utils"
 	"fmt"
+	"math"
 
 	"github.com/google/uuid"
 )
@@ -49,16 +51,38 @@ func (a *AgentTwo) updateTrustworthiness(agentID uuid.UUID, actualAction, expect
 
 }
 
+// Get the direction to the voted lootbox
+func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
+	lootbox := a.gameState.GetLootBoxes()[lootboxID]
+	lootboxPositionX, lootboxPositionY := lootbox.GetPosition().X, lootbox.GetPosition().Y
+	agentPositionX, agentPositionY := a.GetLocation().X, a.GetLocation().Y
+	deltaX := lootboxPositionX - agentPositionX
+	deltaY := lootboxPositionY - agentPositionY
+	angle := math.Atan2(deltaY, deltaX)
+	normalisedAngle := angle / math.Pi
+	turningDecision := utils.TurningDecision{
+		SteerBike:     true,
+		SteeringForce: normalisedAngle - a.gameState.GetMegaBikes()[a.GetBike()].GetOrientation(),
+	}
+	return utils.Forces{
+		Pedal:   utils.BikerMaxForce,
+		Brake:   0.0,
+		Turning: turningDecision,
+	}
+}
+
 // Called by Events to obtain Event Value for update Institution
 // Assume what they broadcast is the truth
 // TODO: Obtain actual action performed from messaging
 // 1. Rule Adhereance (Follow leader biker/ dictator)
-func (a *AgentTwo) RuleAdhereanceValue(agentID uuid.UUID) float64 {
+func (a *AgentTwo) RuleAdhereanceValue(agentID uuid.UUID, expectedAction, actualAction utils.Forces) float64 {
 
-	// magnitude :=
-	similarity := cosineSimilarity(actualAction, expectedAction)
+	magnitude := actualAction.Turning.SteeringForce
+	actualVector := forcesToVectorConversion(actualAction)
+	expectedVector := forcesToVectorConversion(expectedAction)
+	similarity := cosineSimilarity(actualVector, expectedVector)
 
-	normalisedTrustworthiness := similarity * magnitude()
+	normalisedTrustworthiness := similarity * magnitude
 	forceApplied := a.forces.Pedal
 	return normalisedTrustworthiness * forceApplied
 }

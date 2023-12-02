@@ -342,6 +342,15 @@ func (bb *BaseBiker) GetFellowBikers() []IBaseBiker {
 	return fellowBikers
 }
 
+// Returns all agents on a bike.
+func (bb *BaseBiker) GetFellowAgents() []IBaseBiker {
+	var agents []IBaseBiker
+	for _, bike := range bb.gameState.GetMegaBikes() {
+		agents = append(agents, bike.GetAgents()...)
+	}
+	return agents
+}
+
 // This function updates all the messages for that agent i.e. both sending and receiving.
 // And returns the new messages from other agents to your agent
 func (bb *BaseBiker) GetAllMessages([]IBaseBiker) []messaging.IMessage[IBaseBiker] {
