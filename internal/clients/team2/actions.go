@@ -206,9 +206,7 @@ func (a *AgentTwo) Ping() {
 
 func (a *AgentTwo) ToggleOnBike() {
 	// If we are about to toggle off a bike, send a KickOff message.
-	if a.onBike {
-		a.SendKickOffMessage(true, a.GetID())
-	}
+	a.SendKickOffMessage(a.onBike, a.GetID())
 
 	a.onBike = !a.onBike
 }
