@@ -15,10 +15,17 @@ func (a *AgentTwo) CalculateSocialCapital() {
 	// Calculate social networks of all agents
 	// Calculate institutions of all agents
 	// Iterate over each agent
+
+	// Normalize Social Capital Values.
+	normNetworks := normalizeMapValues(a.Network)
+	normtrustworthiness := normalizeMapValues(a.Trust)
+	normInstitution := normalizeMapValues(a.Institution)
+
+	// Caluculate.
 	for agentID := range a.Trust {
-		trustworthiness := a.Trust[agentID]
-		institution := a.Institution[agentID]
-		network := a.Network[agentID] // Assuming these values are already calculated
+		network := normNetworks[agentID] // Assuming these values are already calculated
+		institution := normInstitution[agentID]
+		trustworthiness := normtrustworthiness[agentID]
 
 		a.SocialCapital[agentID] = TrustWeight*trustworthiness + InstitutionWeight*institution + NetworkWeight*network
 	}
@@ -49,25 +56,40 @@ func (a *AgentTwo) updateTrustworthiness(agentID uuid.UUID, actualAction, expect
 
 }
 
-// func (a *AgentTwo) updateInstitution(agentID uuid.UUID) float64 {
+/// ///
+/// Networks
+/// ///
 
-// 	// return 0.5 // This is just a placeholder value
-// }
+func (a *AgentTwo) UpdateEnergyLevel(energyLevel float64) {
+	// Signal that a loot box has collected.
+	// We treat this as a social event and update the Network parameter in Social Capital.
+	if energyLevel > 0.0 {
+		bikeId := a.GetBike()
+		fellowBikers := a.gameState.GetMegaBikes()[bikeId].GetAgents()
+		for _, biker := range fellowBikers {
+			bikerId := biker.GetID()
+			if _, ok := a.Network[bikerId]; !ok {
+				a.Network[bikerId] = 0.0
+			}
+			a.Network[bikerId] += 1.0 * energyLevel
+		}
+	}
 
-// func (a *AgentTwo) updateNetwork(agentID uuid.UUID) float64 {
-// 	// return 0.5 // This is just a placeholder value
-// }
+	// Update energy level.
+	a.energyLevel += energyLevel
+}
 
-// func (a *AgentTwo) calculateTrustworthiness(agentID uuid.UUID) float64 {
+// // func (a *AgentTwo) updateInstitution(agentID uuid.UUID) float64 {
 
-// 	return 0.5 // This is just a placeholder value
-// }
+// // 	// return 0.5 // This is just a placeholder value
+// // }
 
-// func (a *AgentTwo) calculateInstitution(agentID uuid.UUID) float64 {
+// // func (a *AgentTwo) calculateTrustworthiness(agentID uuid.UUID) float64 {
 
-// 	// return 0.5 // This is just a placeholder value
-// }
+// // 	return 0.5 // This is just a placeholder value
+// // }
 
-// func (a *AgentTwo) calculateNetwork(agentID uuid.UUID) float64 {
-// 	// return 0.5 // This is just a placeholder value
-// }
+// // func (a *AgentTwo) calculateInstitution(agentID uuid.UUID) float64 {
+
+// // 	// return 0.5 // This is just a placeholder value
+// // }
