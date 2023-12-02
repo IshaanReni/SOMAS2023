@@ -186,3 +186,20 @@ func (a *AgentTwo) ChangeBike() uuid.UUID {
 	// proposal to change bike to a goal bike
 	return uuid.UUID{}
 }
+
+func (a *AgentTwo) UpdateEnergyLevel(energyLevel float64) {
+	// Signal that a loot box has collected.
+	// We treat this as a social event and update the Network parameter in Social Capital.
+	if energyLevel > 0.0 {
+		a.UpdateSocNetBike(1.0, SocialEventWeight_CollectedLootbox)
+	}
+
+	// Update energy level.
+	a.energyLevel += energyLevel
+}
+
+func (a *AgentTwo) Ping() {
+	// Signal cooperation.
+	// We treat this as a social event and update the Network parameter in Social Capital.
+	a.UpdateSocNetBike(1.0, SocialEventWeight_AgentOnBike)
+}
