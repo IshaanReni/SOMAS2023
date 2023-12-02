@@ -377,6 +377,12 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 	// fmt.Println(actions)
 }
 
+func (a *AgentTwo) ToggleOnBike() {
+	// If we are about to toggle off a bike, send a KickOff message.
+	a.SendKickOffMessage(a.onBike, a.GetID())
+	a.onBike = !a.onBike
+}
+
 func (a *AgentTwo) ChangeBike() uuid.UUID {
 	// Implement this method
 	// Stage 1 called by DecideAction when
