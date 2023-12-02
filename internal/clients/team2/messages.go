@@ -2,6 +2,7 @@ package team2
 
 import (
 	obj "SOMAS2023/internal/common/objects"
+	"math"
 
 	"github.com/MattSScott/basePlatformSOMAS/messaging"
 	"github.com/google/uuid"
@@ -18,22 +19,22 @@ func (a *AgentTwo) CreateForcesMessage() obj.ForcesMessage {
 	}
 }
 
-func (a *AgentTwo) CreateKickOffMessage(kickOff bool, agentId uuid.UUID) obj.KickOffAgentMessage {
-	return obj.KickOffAgentMessage{
-		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowAgents()),
-		AgentId:     agentId,
-		KickOff:     kickOff,
-	}
-}
-
-func (a *AgentTwo) SendKickOffMessage(kickOff bool, agentId uuid.UUID) {
-	msg := a.CreateKickOffMessage(kickOff, agentId)
-	recipients := msg.GetRecipients()
-	for _, recip := range recipients {
-		if a.GetID() == recip.GetID() {
-			continue
+func (a *AgentTwo) CreateKickOffMessage() obj.KickOffAgentMessage {
+	kickOff := false
+	minAgentId := uuid.Nil
+	minCapital := math.MaxFloat64
+	for agentId, value := range a.SocialCapital {
+		if value < minCapital {
+			kickOff = true
+			minCapital = value
+			minAgentId = agentId
 		}
-		msg.InvokeMessageHandler(recip)
+	}
+
+	return obj.KickOffAgentMessage{
+		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowBikers()),
+		AgentId:     minAgentId,
+		KickOff:     kickOff,
 	}
 }
 
