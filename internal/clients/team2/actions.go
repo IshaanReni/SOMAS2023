@@ -203,3 +203,12 @@ func (a *AgentTwo) Ping() {
 	// We treat this as a social event and update the Network parameter in Social Capital.
 	a.UpdateSocNetBike(1.0, SocialEventWeight_AgentOnBike)
 }
+
+func (a *AgentTwo) ToggleOnBike() {
+	// If we are about to toggle off a bike, send a KickOff message.
+	if a.onBike {
+		a.SendKickOffMessage(true, a.GetID())
+	}
+
+	a.onBike = !a.onBike
+}
