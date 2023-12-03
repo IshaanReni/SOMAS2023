@@ -68,12 +68,9 @@ func (sc *SocialCapital) UpdateSocialNetwork(agentId uuid.UUID, eventValue float
 
 // Must be called once every round.
 func (sc *SocialCapital) UpdateSocialCapital(agentID uuid.UUID) float64 {
-	reputation := sc.NormalizeValues(sc.Reputation)
-	institution := sc.NormalizeValues(sc.Institution)
-	socialNetwork := sc.NormalizeValues(sc.SocialNetwork)
 
 	// Update Forgiveness Counter.
-	newSocialCapital := ReputationWeight*reputation[agentID] + InstitutionWeight*institution[agentID] + NetworkWeight*socialNetwork[agentID]
+	newSocialCapital := ReputationWeight*sc.Reputation[agentID] + InstitutionWeight*sc.Institution[agentID] + NetworkWeight*sc.SocialNetwork[agentID]
 
 	if sc.SocialCapital[agentID] < newSocialCapital {
 		sc.forgivenessCounter = 0
@@ -87,29 +84,6 @@ func (sc *SocialCapital) UpdateSocialCapital(agentID uuid.UUID) float64 {
 		sc.SocialCapital[agentID] = newSocialCapital
 	}
 	return sc.SocialCapital[agentID]
-}
-
-func (sc *SocialCapital) NormalizeValues(component map[uuid.UUID]float64) map[uuid.UUID]float64 {
-	if len(component) == 0 {
-		return component
-	}
-
-	min := 0.0
-	max := 0.0
-	for _, value := range component {
-		if value < min {
-			min = value
-		}
-		if value > max {
-			max = value
-		}
-	}
-
-	for key, value := range component {
-		component[key] = (value - min) / (max - min)
-	}
-
-	return component
 }
 
 func NewSocialCapital() *SocialCapital {
