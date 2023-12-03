@@ -32,9 +32,7 @@ func (ivm IdVoteMap) GetVotes() map[uuid.UUID]float64 {
 // and retunr a list of ids that can be accepted according to some metric (ie more than half voted yes)
 // ranked according to a metric (ie overall number of yes's)
 func GetAcceptanceRanking([]map[uuid.UUID]bool) []uuid.UUID {
-	// TODO implement
-	panic("not implemented")
-	// return make([]uuid.UUID, 0)
+
 }
 
 func SumOfValues(voteMap IVoter) float64 {
