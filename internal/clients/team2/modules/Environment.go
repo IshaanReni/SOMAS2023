@@ -93,6 +93,34 @@ func (e *EnvironmentModule) GetBikeById(bikeId uuid.UUID) objects.IMegaBike {
 	return e.GetBikes()[bikeId]
 }
 
+func (e *EnvironmentModule) GetBikeWithMaximumSocialCapital(sc *SocialCapital) uuid.UUID {
+	maxAverage := float64(0)
+	maxBikeId := uuid.Nil
+
+	bikes := e.GetBikes()
+	for bikeId, bike := range bikes {
+		totalSocialCapital := float64(0)
+		agentCount := float64(len(bike.GetAgents()))
+
+		// Sum up the social capital of all agents on this bike
+		for _, agent := range bike.GetAgents() {
+			agentId := agent.GetID()
+			totalSocialCapital += sc.SocialCapital[agentId]
+		}
+
+		// Calculate average social capital for this bike, Assume we don't swtich to a bike with 0 agents
+		if agentCount > 0 {
+			averageSocialCapital := totalSocialCapital / agentCount
+			if averageSocialCapital > maxAverage {
+				maxAverage = averageSocialCapital
+				maxBikeId = bikeId
+			}
+		}
+	}
+
+	return maxBikeId
+}
+
 func (e *EnvironmentModule) GetDistanceToAudi() float64 {
 	bikePos, audiPos := e.GetBikeById(e.BikeId).GetPosition(), e.GetAudi().GetPosition()
 
