@@ -20,16 +20,16 @@ func (a *AgentTwo) CalculateSocialCapital() {
 
 	// Normalize Social Capital Values.
 	normNetworks := normalizeMapValues(a.Network)
-	normtrustworthiness := normalizeMapValues(a.Reputation)
+	normReputation := normalizeMapValues(a.Reputation)
 	normInstitution := normalizeMapValues(a.Institution)
 
 	// Caluculate.
 	for agentID := range a.Reputation {
 		network := normNetworks[agentID] // Assuming these values are already calculated
 		institution := normInstitution[agentID]
-		trustworthiness := normtrustworthiness[agentID]
+		reputation := normReputation[agentID]
 
-		newSocialCapital := TrustWeight*trustworthiness + InstitutionWeight*institution + NetworkWeight*network
+		newSocialCapital := TrustWeight*reputation + InstitutionWeight*institution + NetworkWeight*network
 
 		// if the current socialCapital is smaller than the previous socialCapital AND the forgiveness counter is less than or equal to 3, then we increase the forgiveness counter
 		if a.SocialCapital[agentID] > newSocialCapital && a.forgivenessCounter <= 3 { // If they were trustworthy in prev rounds, we feel remorse and we forgive them
