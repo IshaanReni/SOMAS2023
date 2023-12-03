@@ -144,3 +144,8 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 	fmt.Println("agent energy after: ", a.GetEnergyLevel())
 	// fmt.Println(actions)
 }
+
+func (a *AgentTwo) UpdateGameState(gameState objects.IGameState) {
+	a.UpdateGameState(gameState)
+	a.EnvironmentModule.SetGameState(gameState)
+}
