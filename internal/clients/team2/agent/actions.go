@@ -16,7 +16,7 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 	a.gameState = a.GetGameState()
 
 	// fmt.Println("DecideAction megabikes: ", a.gameState.GetMegaBikes())
-	for id, _ := range a.EnvironmentModule.GetBikerAgents() {
+	for id := range a.EnvironmentModule.GetBikerAgents() {
 		// get the force for the agent with agentID in actions
 		// fmt.Println("DecideAction agentID: ", agentID)
 		for _, action := range a.actions {
