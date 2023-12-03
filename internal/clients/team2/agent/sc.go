@@ -120,7 +120,7 @@ func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
 // Assume what they broadcast is the truth
 // TODO: Obtain actual action performed from messaging
 // 1. Rule Adhereance (Follow leader biker/ dictator)
-func (a *AgentTwo) RuleAdhereanceValue(agentID uuid.UUID, expectedAction, actualAction utils.Forces) float64 {
+func (a *AgentTwo) RuleAdherenceValue(agentID uuid.UUID, expectedAction, actualAction utils.Forces) float64 {
 	actualVec := modules.GetForceVector(actualAction)
 	expectVec := modules.GetForceVector(expectedAction)
 	return actualVec.CosineSimilarity(*expectVec) * actualAction.Pedal
