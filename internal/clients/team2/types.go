@@ -58,7 +58,7 @@ type AgentTwo struct {
 	energyLevel        float64 // float between 0 and 1
 	points             int
 	forces             utils.Forces
-	allocationParams   objects.ResourceAllocationParams
+	// allocationParams   objects.ResourceAllocationParams
 	votedDirection     uuid.UUID
 }
 

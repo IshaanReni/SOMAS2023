@@ -14,25 +14,34 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 	// lootBoxlocation := Vector{X: 0.0, Y: 0.0} // need to change this later on (possibly need to alter the updateTrustworthiness function)
 	//update agent's trustworthiness every round pretty much at the start of each epoch
 	a.gameState = a.GetGameState()
-
+	// fmt.Println("got gamestate")
 	// fmt.Println("DecideAction megabikes: ", a.gameState.GetMegaBikes())
-	for _, bike := range a.GetGameState().GetMegaBikes() {
+	for _, bike := range a.gameState.GetMegaBikes() {
+		// fmt.Println("DecideAction bike: ", bike.GetID(), " ", bike.GetAgents())
+		// fmt.Println("getting all megabikes")
 		// fmt.Println("DecideAction bike: ", bike.GetID(), " ", bike.GetAgents())
 		for _, agent := range bike.GetAgents() {
 			// get the force for the agent with agentID in actions
+			// fmt.Println("getting all agents")
+
 			agentID := agent.GetID()
 			// fmt.Println("DecideAction agentID: ", agentID)
 			for _, action := range a.actions {
+				// fmt.Println("getting all agent actions")
 				// fmt.Println("DecideAction action: ", action)
 				if action.AgentID == agentID {
 					// update trustworthiness
 					// Needs to be updated so that a.NearLootbox() is replaced with the lootbox location that the agent says that they're going for
 					a.updateReputation(agentID, a.GetOptimalLootbox(), a.nearestLoot())
+					fmt.Println("updated reputation of agent: ", agentID)
+
 				}
 			}
 			// a.updateTrustworthiness(agent.GetID(), forcesToVectorConversion(), lootBoxlocation)
 		}
 	}
+	// fmt.Println("out of updateRep loop")
+
 	// a.gameState.GetMegaBikes()[a.GetBike()].GetAgents()[0].GetForces()
 	// Check energy level, if below threshold, don't change bike
 	// energyThreshold := 0.2
@@ -77,7 +86,6 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 	currLocation := a.GetLocation()
 	nearestLoot := a.nearestLoot()
 	currentLootBoxes := a.gameState.GetLootBoxes()
-	fmt.Println("DecideForce entering")
 	fmt.Println("nearestLoot: ", nearestLoot)
 	// fmt.Println("currentLootBoxes: ", currentLootBoxes)
 	fmt.Println("currLocation: ", currLocation, " bike: ", a.GetBike(), " energy: ", a.GetEnergyLevel(), " points: ", a.GetPoints())
