@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"SOMAS2023/internal/clients/team2/agent"
 	"SOMAS2023/internal/common/utils"
 	"testing"
 
@@ -20,7 +19,7 @@ func TestRuleAdherenceValue_SameDirection(t *testing.T) {
 	actualAction := utils.Forces{Pedal: 0.2, Turning: turningDecision}
 
 	// Create an instance of AgentTwo
-	agent := agent.NewBaseTeam2Biker(agentID)
+	agent := NewBaseTeam2Biker(agentID)
 
 	// Call the function
 	result := agent.RuleAdherenceValue(agentID, expectedAction, actualAction)
@@ -47,7 +46,7 @@ func TestRuleAdherenceValue_OppositeDirection(t *testing.T) {
 	actualAction := utils.Forces{Pedal: 0.2, Turning: ActualTurningDecision}
 
 	// Create an instance of AgentTwo
-	agent := agent.NewBaseTeam2Biker(agentID)
+	agent := NewBaseTeam2Biker(agentID)
 
 	// Call the function
 	result := agent.RuleAdherenceValue(agentID, expectedAction, actualAction)
@@ -74,7 +73,7 @@ func TestRuleAdherenceValue_OrthogonalDirection(t *testing.T) {
 	actualAction := utils.Forces{Pedal: 0.2, Turning: ActualTurningDecision}
 
 	// Create an instance of AgentTwo
-	agent := agent.NewBaseTeam2Biker(agentID)
+	agent := NewBaseTeam2Biker(agentID)
 
 	// Call the function
 	result := agent.RuleAdherenceValue(agentID, expectedAction, actualAction)
