@@ -1,4 +1,4 @@
-package team2
+package agent
 
 import (
 	"SOMAS2023/internal/common/utils"
