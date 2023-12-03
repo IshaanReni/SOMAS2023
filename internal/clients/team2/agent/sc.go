@@ -1,6 +1,7 @@
-package team2
+package agent
 
 import (
+	"SOMAS2023/internal/clients/team2/modules"
 	"SOMAS2023/internal/common/utils"
 	"fmt"
 	"math"
@@ -120,13 +121,9 @@ func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
 // TODO: Obtain actual action performed from messaging
 // 1. Rule Adhereance (Follow leader biker/ dictator)
 func (a *AgentTwo) RuleAdhereanceValue(agentID uuid.UUID, expectedAction, actualAction utils.Forces) float64 {
-
-	actualVector := forcesToVectorConversion(actualAction)
-	expectedVector := forcesToVectorConversion(expectedAction)
-	similarity := cosineSimilarity(actualVector, expectedVector)
-
-	forceApplied := actualAction.Pedal
-	return similarity * forceApplied
+	actualVec := modules.GetForceVector(actualAction)
+	expectVec := modules.GetForceVector(expectedAction)
+	return actualVec.CosineSimilarity(*expectVec) * actualAction.Pedal
 }
 
 // Assume institution rules is only broadcasted within the same bike

@@ -1,6 +1,7 @@
-package team2
+package agent
 
 import (
+	"SOMAS2023/internal/clients/team2/modules"
 	"SOMAS2023/internal/common/utils"
 	"fmt"
 	"math"
@@ -8,6 +9,14 @@ import (
 
 	"github.com/google/uuid"
 )
+
+type Action struct {
+	AgentID         uuid.UUID
+	Action          string
+	Force           utils.Forces
+	GameLoop        int32
+	lootBoxlocation modules.ForceVector //utils.Coordinates
+}
 
 func (a *AgentTwo) ChooseOptimalBike() uuid.UUID {
 	// Implement this method
@@ -98,7 +107,7 @@ func (a *AgentTwo) GetPreviousAction() {
 	// nearestLoot := a.nearestLoot()
 	// currentLootBoxes := a.gameState.GetLootBoxes()
 	// lootBoxlocation := currentLootBoxes[nearestLoot].GetPosition()
-	lootBoxlocation_vector := ForceVector{X: 0.0, Y: 0.0} // need to change this later on (possibly need to alter the updateTrustworthiness function)
+	lootBoxlocation_vector := modules.ForceVector{X: 0.0, Y: 0.0} // need to change this later on (possibly need to alter the updateTrustworthiness function)
 	//update agent's trustworthiness every round pretty much at the start of each epoch
 	for _, bike := range a.gameState.GetMegaBikes() {
 		for _, agent := range bike.GetAgents() {
@@ -234,4 +243,27 @@ func (a *AgentTwo) GetOptimalLootbox() uuid.UUID {
 	}
 
 	return top3Lootboxes[0].ID
+}
+
+func normalizeMapValues(capitals map[uuid.UUID]float64) map[uuid.UUID]float64 {
+	if len(capitals) == 0 {
+		return capitals
+	}
+
+	min := 0.0
+	max := 0.0
+	for _, value := range capitals {
+		if value < min {
+			min = value
+		}
+		if value > max {
+			max = value
+		}
+	}
+
+	for key, value := range capitals {
+		capitals[key] = (value - min) / (max - min)
+	}
+
+	return capitals
 }

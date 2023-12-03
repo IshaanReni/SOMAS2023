@@ -1,6 +1,7 @@
-package team2
+package agent
 
 import (
+	"SOMAS2023/internal/clients/team2/modules"
 	"SOMAS2023/internal/common/utils"
 	"testing"
 
@@ -38,20 +39,20 @@ func TestForcesToVectorConversion(t *testing.T) {
 		},
 	}
 
-	expectedVector := ForceVector{X: 1.414, Y: 1.414}
+	expectedVector := modules.ForceVector{X: 1.414, Y: 1.414}
 
-	resultVector := forcesToVectorConversion(force)
+	resultVector := modules.GetForceVector(force)
 	// since floating point, need comparison within threshold
 	assert.InDelta(t, expectedVector.X, resultVector.X, 0.001)
 	assert.InDelta(t, expectedVector.Y, resultVector.Y, 0.001)
 }
 
 func TestCosineSimilarity(t *testing.T) {
-	v1 := ForceVector{X: 1, Y: 0}
-	v2 := ForceVector{X: 0, Y: 1}
+	v1 := modules.ForceVector{X: 1, Y: 0}
+	v2 := modules.ForceVector{X: 0, Y: 1}
 
 	expectedResult := 0.0 // dot product is 0 since vectors are perpendicular
-	result := cosineSimilarity(v1, v2)
+	result := v1.CosineSimilarity(v2)
 
 	assert.Equal(t, expectedResult, result)
 }
