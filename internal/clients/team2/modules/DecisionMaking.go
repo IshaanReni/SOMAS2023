@@ -7,6 +7,7 @@ import (
 // DecisionInputs - Inputs for making decisions
 type DecisionInputs struct {
 	SocialCapital *SocialCapital
+	Enviornment   *EnvironmentModule
 	AgentID       uuid.UUID
 }
 
@@ -41,10 +42,11 @@ func (dm *DecisionModule) MakeAcceptAgentDecision(inputs DecisionInputs) bool {
 
 func (dm *DecisionModule) MakeBikeChangeDecision(inputs DecisionInputs) (bool, uuid.UUID) {
 	// Logic to decide on bike change
-	shouldChangeBike = false
-	if inputs.SocialCapital.GetAverage() < LeaveBikeThreshold {
+	shouldChangeBike := false
+	bikeID := uuid.Nil
+	if inputs.SocialCapital.GetAverage(inputs.SocialCapital.SocialCapital) < LeaveBikeThreshold {
 		shouldChangeBike = true
-		bikeID = inputs.SocialCapital.GetBikeWithMaximumSocialCapital()
+		bikeID = inputs.Enviornment.GetBikeWithMaximumSocialCapital(inputs.SocialCapital)
 	}
 	return shouldChangeBike, bikeID
 }
