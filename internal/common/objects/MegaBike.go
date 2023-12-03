@@ -23,9 +23,9 @@ type IMegaBike interface {
 type MegaBike struct {
 	*PhysicsObject
 	agents         []IBaseBiker
+	kickedOutCount int
 	governance     utils.Governance
 	ruler          uuid.UUID
-	kickedOutCount int
 }
 
 // GetMegaBike is a constructor for MegaBike that initializes it with a new UUID and default position.

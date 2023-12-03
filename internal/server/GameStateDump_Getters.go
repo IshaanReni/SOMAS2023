@@ -3,8 +3,9 @@ package server
 import (
 	"SOMAS2023/internal/common/objects"
 	"SOMAS2023/internal/common/utils"
-	"github.com/google/uuid"
 	"maps"
+
+	"github.com/google/uuid"
 )
 
 func (gs GameStateDump) GetLootBoxes() map[uuid.UUID]objects.ILootBox {
@@ -17,7 +18,7 @@ func (gs GameStateDump) GetLootBoxes() map[uuid.UUID]objects.ILootBox {
 
 func (gs GameStateDump) GetMegaBikes() map[uuid.UUID]objects.IMegaBike {
 	result := make(map[uuid.UUID]objects.IMegaBike)
-	for id, mb := range gs.Bikes {
+	for id, mb := range gs.GetMegaBikes() {
 		result[id] = mb
 	}
 	return result
@@ -25,7 +26,7 @@ func (gs GameStateDump) GetMegaBikes() map[uuid.UUID]objects.IMegaBike {
 
 func (gs GameStateDump) GetAgents() map[uuid.UUID]objects.IBaseBiker {
 	result := make(map[uuid.UUID]objects.IBaseBiker)
-	for id, a := range gs.Agents {
+	for id, a := range gs.GetAgents() {
 		result[id] = a
 	}
 	return result
@@ -87,10 +88,6 @@ func (a AgentDump) GetPoints() int {
 	return a.Points
 }
 
-func (a AgentDump) GetResourceAllocationParams() objects.ResourceAllocationParams {
-	return a.ResourceAllocationParams
-}
-
 func (a AgentDump) GetBikeStatus() bool {
 	return a.OnBike
 }
@@ -102,7 +99,7 @@ func (a AgentDump) GetReputation() map[uuid.UUID]float64 {
 func (b BikeDump) GetAgents() []objects.IBaseBiker {
 	result := make([]objects.IBaseBiker, 0, len(b.Agents))
 	for i := range b.Agents {
-		result = append(result, b.Agents[i])
+		result = append(result, b.GetAgents()[i])
 	}
 	return result
 }

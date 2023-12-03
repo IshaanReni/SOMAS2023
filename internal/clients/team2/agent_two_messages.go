@@ -13,7 +13,7 @@ func (a *AgentTwo) CreateForcesMessage() obj.ForcesMessage {
 	// For team's agent, add your own logic to communicate with other agents
 
 	return obj.ForcesMessage{
-		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowBikers()),
+		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a.CreateForcesMessage().GetSender(), a.GetFellowBikers()),
 		AgentId:     a.GetID(),
 		AgentForces: a.forces,
 	}
@@ -32,7 +32,7 @@ func (a *AgentTwo) CreateKickOffMessage() obj.KickOffAgentMessage {
 	}
 
 	return obj.KickOffAgentMessage{
-		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowBikers()),
+		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a.CreateKickOffMessage().GetSender(), a.GetFellowBikers()),
 		AgentId:     minAgentId,
 		KickOff:     kickOff,
 	}

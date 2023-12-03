@@ -2,33 +2,33 @@ package server
 
 import (
 	"SOMAS2023/internal/common/objects"
+	"SOMAS2023/internal/common/utils"
 	"encoding/json"
 	"fmt"
 	"os"
-	"SOMAS2023/internal/common/utils"
-
 
 	baseserver "github.com/MattSScott/basePlatformSOMAS/BaseServer"
 	"github.com/google/uuid"
 )
 
-const LootBoxCount = BikerAgentCount
-const MegaBikeCount = BikerAgentCount / 5
+const LootBoxCount = BikerAgentCount * 2
+const MegaBikeCount = BikerAgentCount / 2
+const BikerAgentCount = 6
 
 type IBaseBikerServer interface {
 	baseserver.IServer[objects.IBaseBiker]
 	GetMegaBikes() map[uuid.UUID]objects.IMegaBike
 	GetLootBoxes() map[uuid.UUID]objects.ILootBox
 	GetAudi() objects.IAudi
-	GetJoiningRequests() map[uuid.UUID][]uuid.UUID
+	GetJoiningRequests([]uuid.UUID) map[uuid.UUID][]uuid.UUID
 	GetRandomBikeId() uuid.UUID
 	RulerElection(agents []objects.IBaseBiker, governance utils.Governance) uuid.UUID
 	RunRulerAction(bike objects.IMegaBike) uuid.UUID
-	NewGameStateDump() GameStateDump
 	RunDemocraticAction(bike objects.IMegaBike, weights map[uuid.UUID]float64) uuid.UUID
-	GetLeavingDecisions(gameState objects.IGameState)
-	HandleKickoutProcess()
-	ProcessJoiningRequests()
+	NewGameStateDump() GameStateDump
+	GetLeavingDecisions(gameState objects.IGameState) []uuid.UUID
+	HandleKickoutProcess() []uuid.UUID
+	ProcessJoiningRequests(inLimbo []uuid.UUID)
 	RunActionProcess()
 	AudiCollisionCheck()
 	AddAgentToBike(agent objects.IBaseBiker)
@@ -56,12 +56,6 @@ func Initialize(iterations int) IBaseBikerServer {
 	}
 	server.replenishLootBoxes()
 	server.replenishMegaBikes()
-
-	// Randomly allocate bikers to bikes
-	for _, biker := range server.GetAgentMap() {
-		biker.SetBike(server.GetRandomBikeId())
-		server.AddAgentToBike(biker)
-	}
 
 	return server
 }

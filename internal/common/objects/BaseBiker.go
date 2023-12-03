@@ -3,6 +3,7 @@ package objects
 import (
 	utils "SOMAS2023/internal/common/utils"
 	voting "SOMAS2023/internal/common/voting"
+	"fmt"
 	"math"
 
 	"math/rand"
@@ -12,20 +13,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// this struct holds the allocation parameters that we want the allocation protocol to take into account
-// These can change based on how we want the allocation to happend, for now they are taken from
-// the lecture slides, but more/less could be taken into account.
-type ResourceAllocationParams struct {
-	ResourceNeed          float64 `json:"need"`          // 0-1, how much energy the agent needs, could be set to 1 - energyLevel
-	ResourceDemand        float64 `json:"demand"`        // 0-1, how much energy the agent wants, might differ from ResourceNeed
-	ResourceProvision     float64 `json:"provision"`     // 0-1, how much energy the agent has given to reach a goal (could be either the sum of pedaling forces since last lootbox, or the latest pedalling force, or something else
-	ResourceAppropriation float64 `json:"appropriation"` // 0-1, the proportion of what the server allocates that the agent actually gets, for MVP, set to 1
-}
-
 type IBaseBiker interface {
 	baseAgent.IAgent[IBaseBiker]
 
-	DecideGovernance() voting.GovernanceVote
+	DecideGovernance() utils.Governance
 	DecideAction() BikerAction                                                  // ** determines what action the agent is going to take this round. (changeBike or Pedal)
 	DecideForce(direction uuid.UUID)                                            // ** defines the vector you pass to the bike: [pedal, brake, turning]
 	DecideJoining(pendinAgents []uuid.UUID) map[uuid.UUID]bool                  // ** decide whether to accept or not accept bikers, ranks the ones
@@ -43,6 +34,7 @@ type IBaseBiker interface {
 	DecideDictatorAllocation() voting.IdVoteMap // ** decide the allocation (dictator)
 
 	// leader functions
+	DecideWeights(action utils.Action) map[uuid.UUID]float64 // decide on weights for various actions
 
 	GetForces() utils.Forces        // returns forces for current round
 	GetColour() utils.Colour        // returns the colour of the lootbox that the agent is currently seeking
@@ -50,8 +42,7 @@ type IBaseBiker interface {
 	GetBike() uuid.UUID             // tells the biker which bike it is on
 	GetEnergyLevel() float64        // returns the energy level of the agent
 	GetPoints() int
-	GetResourceAllocationParams() ResourceAllocationParams // returns set allocation parameters
-	GetBikeStatus() bool                                   // returns whether the biker is on a bike or not
+	GetBikeStatus() bool // returns whether the biker is on a bike or not
 
 	SetBike(uuid.UUID)                     // sets the megaBikeID. this is either the id of the bike that the agent is on or the one that it's trying to join
 	SetForces(forces utils.Forces)         // sets the forces (to be updated in DecideForces())
@@ -62,7 +53,10 @@ type IBaseBiker interface {
 	ToggleOnBike()                         // called when removing or adding a biker on a bike
 	ResetPoints()
 
-	// FOR MESSAGING - ours
+	GetReputation() map[uuid.UUID]float64 // get reputation value of all other agents
+	QueryReputation(uuid.UUID) float64    // query for reputation value of specific agent with UUID
+	SetReputation(uuid.UUID, float64)     // set reputation value of specific agent with UUID
+
 	HandleKickOffMessage(msg KickOffAgentMessage)
 	HandleReputationMessage(msg ReputationOfAgentMessage)
 	HandleJoiningMessage(msg JoiningAgentMessage)
@@ -71,11 +65,6 @@ type IBaseBiker interface {
 	HandleForcesMessage(msg ForcesMessage)
 
 	GetAllMessages([]IBaseBiker) []messaging.IMessage[IBaseBiker]
-
-	GetReputation() map[uuid.UUID]float64 // get reputation value of all other agents
-	QueryReputation(uuid.UUID) float64    // query for reputation value of specific agent with UUID
-	SetReputation(uuid.UUID, float64)     // set reputation value of specific agent with UUID
-
 }
 
 type BikerAction int
@@ -92,9 +81,8 @@ type BaseBiker struct {
 	energyLevel                      float64 // float between 0 and 1
 	points                           int
 	forces                           utils.Forces
-	megaBikeId                       uuid.UUID  // if they are not on a bike it will be 0
-	gameState                        IGameState // updated by the server at every round
-	allocationParams                 ResourceAllocationParams
+	megaBikeId                       uuid.UUID             // if they are not on a bike it will be 0
+	gameState                        IGameState            // updated by the server at every round
 	reputation                       map[uuid.UUID]float64 // record reputation for other agents in float
 }
 
@@ -117,7 +105,7 @@ func (bb *BaseBiker) UpdateEnergyLevel(energyLevel float64) {
 }
 
 func (bb *BaseBiker) GetColour() utils.Colour {
-	// fmt.Println("regular agent: GetColour: t5.regular.GetColour(): ", bb.soughtColour)
+	fmt.Println("regular agent: GetColour: t5.regular.GetColour(): ", bb.soughtColour)
 	return bb.soughtColour
 }
 
@@ -278,10 +266,6 @@ func (bb *BaseBiker) SetForces(forces utils.Forces) {
 
 func (bb *BaseBiker) UpdateGameState(gameState IGameState) {
 	bb.gameState = gameState
-}
-
-func (bb *BaseBiker) GetResourceAllocationParams() ResourceAllocationParams {
-	return bb.allocationParams
 }
 
 // default implementation returns the id of the nearest lootbox
@@ -564,20 +548,6 @@ func GetBaseBiker(totColours utils.Colour, bikeId uuid.UUID) *BaseBiker {
 		points:       0,
 	}
 }
-
-//
-//
-//
-//
-// FOR MESSAGING - ours
-
-// Returns the other agents on your bike :)
-// func (bb *BaseBiker) GetFellowBikers() []IBaseBiker {
-// 	bikes := bb.gameState.GetMegaBikes()
-// 	bike := bikes[bb.GetBike()]
-// 	fellowBikers := bike.GetAgents()
-// 	return fellowBikers
-// }
 
 // OUR FORCES MESSAGE
 
