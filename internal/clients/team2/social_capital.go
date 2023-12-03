@@ -91,9 +91,9 @@ func (a *AgentTwo) UpdateSocNetAgent(agentID uuid.UUID, eventValue float64, weig
 	a.Network[agentID] += eventValue * weight
 }
 
-//////
+///////
 /// Institutions
-//////
+///////
 
 // Get the direction to the voted lootbox
 func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
