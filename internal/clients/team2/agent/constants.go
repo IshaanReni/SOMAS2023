@@ -8,9 +8,9 @@ const (
 )
 
 const (
-	SocialEventWeight_AgentSentMsg = 1
+	SocialEventWeight_AgentSentMsg = 0.1
 
-	SocialEventValue_AgentSentMsg = 1
+	SocialEventValue_AgentSentMsg = 0.05
 )
 
 // Constants related to the calculation of Institution
