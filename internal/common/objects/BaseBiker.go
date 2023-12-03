@@ -155,6 +155,7 @@ func (bb *BaseBiker) nearestLoot() uuid.UUID {
 // in future implementations this function will be overridden by the agent's specific strategy
 // which will be used to determine whether to pedalor try to change bike
 func (bb *BaseBiker) DecideAction() BikerAction {
+	// fmt.Println("agent: ", bb.GetID(), "before agent: ", bb.GetBike())
 	return Pedal
 }
 
@@ -164,7 +165,6 @@ func (bb *BaseBiker) DecideAction() BikerAction {
 
 // the function is passed in the id of the voted lootbox, for now ignored
 func (bb *BaseBiker) DecideForce(direction uuid.UUID) {
-
 	// NEAREST BOX STRATEGY (MVP)
 	currLocation := bb.GetLocation()
 	nearestLoot := bb.nearestLoot()
