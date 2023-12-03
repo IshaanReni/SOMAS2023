@@ -21,14 +21,13 @@ func TestCalculateSocialCapital(t *testing.T) {
 	testAgentID := uuid.New()
 
 	// Set up predefined values for trust, institution, and network
-	agent.Trust[testAgentID] = 0.8
+	agent.Reputation[testAgentID] = 0.8
 	agent.Institution[testAgentID] = 0.3
 	agent.Network[testAgentID] = 0.5
 
 	agent.CalculateSocialCapital()
 
-	expectedSocialCapital := TrustWeight*0.8 + InstitutionWeight*0.3 + NetworkWeight*0.5
-	assert.Equal(t, expectedSocialCapital, agent.SocialCapital[testAgentID])
+	assert.Equal(t, 2.0, agent.SocialCapital[testAgentID]) // 2 due to min/max scaling.
 }
 
 func TestForcesToVectorConversion(t *testing.T) {
