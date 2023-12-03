@@ -20,7 +20,7 @@ type KickDecisionModule struct {
 	IDecisionModule[DecisionInputs, KickDecisionOutput]
 }
 
-func NewKicDecisionMoudle() *KickDecisionModule {
+func NewKickDecisionMoudle() *KickDecisionModule {
 	return &KickDecisionModule{}
 }
 
