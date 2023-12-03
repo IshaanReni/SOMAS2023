@@ -12,12 +12,12 @@ type DecisionInputs struct {
 }
 
 // DecisionOutputs - Struct for outputs of different decision types
+// To be fair, it is currently not used. Can be used or not used. Up to you.
 type DecisionOutputs struct {
-	KickAgentID       uuid.UUID
-	ShouldAcceptAgent bool
-	ShouldChangeBike  bool
-	BikeID            uuid.UUID
-	GovernanceID      int
+	KickAgentID      uuid.UUID
+	ShouldChangeBike bool
+	BikeID           uuid.UUID
+	GovernanceID     int
 }
 
 // DecisionModule - Module for handling various decisions
