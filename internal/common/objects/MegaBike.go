@@ -12,7 +12,6 @@ type IMegaBike interface {
 	RemoveAgent(bikerId uuid.UUID)
 	GetAgents() []IBaseBiker
 	UpdateMass()
-	PingAgents()
 }
 
 // MegaBike will have the following forces
@@ -51,12 +50,6 @@ func (mb *MegaBike) RemoveAgent(bikerId uuid.UUID) {
 
 func (mb *MegaBike) GetAgents() []IBaseBiker {
 	return mb.agents
-}
-
-func (mb *MegaBike) PingAgents() {
-	for _, agent := range mb.agents {
-		agent.Ping()
-	}
 }
 
 // Calculate the mass of the bike with all it's agents

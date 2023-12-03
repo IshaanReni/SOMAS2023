@@ -43,15 +43,6 @@ func (s *Server) RunGameLoop() {
 	// Replenish objects
 	s.replenishLootBoxes()
 	s.replenishMegaBikes()
-
-	// Ping all agents on a bike.
-	s.PingAgents()
-}
-
-func (s *Server) PingAgents() {
-	for _, bike := range s.GetMegaBikes() {
-		bike.PingAgents()
-	}
 }
 
 func (s *Server) RunBikeSwitch() {

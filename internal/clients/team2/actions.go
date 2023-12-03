@@ -53,6 +53,8 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 
 // To overwrite the BaseBiker's DecideForce method in order to record all the previous actions of all bikes (GetForces) and bikers from gamestates
 func (a *AgentTwo) DecideForce(direction uuid.UUID) {
+
+	a.votedDirection = direction
 	fmt.Println("DecideForce entering")
 	fmt.Println("agent energy before: ", a.GetEnergyLevel())
 	// Pedal, Brake, Turning
@@ -185,21 +187,4 @@ func (a *AgentTwo) ChangeBike() uuid.UUID {
 	// Stage 1 called by DecideAction when
 	// proposal to change bike to a goal bike
 	return uuid.UUID{}
-}
-
-func (a *AgentTwo) UpdateEnergyLevel(energyLevel float64) {
-	// Signal that a loot box has collected.
-	// We treat this as a social event and update the Network parameter in Social Capital.
-	if energyLevel > 0.0 {
-		a.UpdateSocNetBike(1.0, SocialEventWeight_CollectedLootbox)
-	}
-
-	// Update energy level.
-	a.energyLevel += energyLevel
-}
-
-func (a *AgentTwo) Ping() {
-	// Signal cooperation.
-	// We treat this as a social event and update the Network parameter in Social Capital.
-	a.UpdateSocNetBike(1.0, SocialEventWeight_AgentOnBike)
 }

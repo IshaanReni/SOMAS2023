@@ -1,7 +1,9 @@
 package team2
 
 import (
+	"SOMAS2023/internal/common/utils"
 	"fmt"
+	"math"
 
 	"github.com/google/uuid"
 )
@@ -67,17 +69,53 @@ func (a *AgentTwo) UpdateSocNetAgent(agentId uuid.UUID, amt float64, weight floa
 	a.Network[agentId] += amt * weight
 }
 
-func (a *AgentTwo) UpdateSocNetBike(amt float64, weight float64) {
-	// Update Network of SC.
-	// Simply add 1 to all fellow bikers.
-	fellowBikers := a.GetFellowBikers()
-	for _, biker := range fellowBikers {
-		bikerId := biker.GetID()
-		if _, ok := a.Network[bikerId]; !ok {
-			a.Network[bikerId] = 0.0
-		}
-		a.Network[bikerId] += amt * weight
+//////
+/// Institutions
+//////
+
+// Get the direction to the voted lootbox
+func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
+	lootbox := a.gameState.GetLootBoxes()[lootboxID]
+	lootboxPositionX, lootboxPositionY := lootbox.GetPosition().X, lootbox.GetPosition().Y
+	agentPositionX, agentPositionY := a.GetLocation().X, a.GetLocation().Y
+	deltaX := lootboxPositionX - agentPositionX
+	deltaY := lootboxPositionY - agentPositionY
+	angle := math.Atan2(deltaY, deltaX)
+	normalisedAngle := angle / math.Pi
+	turningDecision := utils.TurningDecision{
+		SteerBike:     true,
+		SteeringForce: normalisedAngle - a.gameState.GetMegaBikes()[a.GetBike()].GetOrientation(),
 	}
+	return utils.Forces{
+		Pedal:   utils.BikerMaxForce,
+		Brake:   0.0,
+		Turning: turningDecision,
+	}
+}
+
+// Called by Events to obtain Event Value for update Institution
+// Assume what they broadcast is the truth
+// TODO: Obtain actual action performed from messaging
+// 1. Rule Adhereance (Follow leader biker/ dictator)
+func (a *AgentTwo) RuleAdhereanceValue(agentID uuid.UUID, expectedAction, actualAction utils.Forces) float64 {
+
+	actualVector := forcesToVectorConversion(actualAction)
+	expectedVector := forcesToVectorConversion(expectedAction)
+	similarity := cosineSimilarity(actualVector, expectedVector)
+
+	forceApplied := actualAction.Pedal
+	return similarity * forceApplied
+}
+
+// Assume institution rules is only broadcasted within the same bike
+// Events to update Institution
+// 1. Rule Adhereance (Follow leader biker/ dictator )
+// 2. Voting
+// 3. Kicked out of bike
+// 4. Accepted to bike
+// 5. Role Assignment (Voted to be leader/ Dictator)
+func (a *AgentTwo) updateInstitution(agentID uuid.UUID, weight float64, EventValue float64) {
+	a.Institution[agentID] += EventValue * weight
 }
 
 // // func (a *AgentTwo) updateInstitution(agentID uuid.UUID) float64 {
