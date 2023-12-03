@@ -27,8 +27,9 @@ const (
 	InstitutionEventWeight_KickedOut  = 0.0  // Weight for being kicked out of bike in institution calculation
 	InstitutionEventWeight_Accepted   = 0.0  // Weight for being accepted to bike in institution calculation
 	InstitutionEventWeight_VotedRole  = 0.0  // Weight for role assignment in institution calculation
-	InstitutionKickoffEventValue      = -0.5 // Value for being kicked out of bike in institution calculation
-	InstitutionAcceptedEventValue     = 0.2  // Value for being accepted to bike in institution calculation
+	InstitutionKickoffEventValue      = -0.1 // Value for being kicked out of bike in institution calculation
+	InstitutionAcceptedEventValue     = 0.1  // Value for being accepted to bike in institution calculation
+	InstitutionVotingEventValue       = 0.1  // Value for role assignment in institution calculation
 )
 
 const (

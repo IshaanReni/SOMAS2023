@@ -57,15 +57,21 @@ func (a *AgentTwo) HandleForcesMessage(msg obj.ForcesMessage) {
 
 	a.UpdateSocNetAgent(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
 	a.updateInstitution(agentId, InstitutionEventWeight_Adhereance, EventValue)
-
 }
 
 func (a *AgentTwo) HandleJoiningMessage(msg obj.JoiningAgentMessage) {
-
-	// sender := msg.BaseMessage.GetSender()
-	// agentId := msg.AgentId
-	// bikeId := msg.BikeId
+	// TODO: Problem with this is that we don't know if the agent actually joined the bike
 	agentId := msg.AgentId
 	a.UpdateSocNetAgent(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
 	a.updateInstitution(agentId, InstitutionEventWeight_Accepted, InstitutionAcceptedEventValue)
+}
+
+func (a *AgentTwo) HandleGovernanceMessage(msg obj.GovernanceMessage) {
+	agentId := msg.GetSender().GetID()
+	a.updateInstitution(agentId, InstitutionEventWeight_Voting, InstitutionVotingEventValue)
+}
+
+func (a *AgentTwo) HandleLootboxMessage(msg obj.LootboxMessage) {
+	agentId := msg.GetSender().GetID()
+	a.updateInstitution(agentId, InstitutionEventWeight_Voting, InstitutionVotingEventValue)
 }
