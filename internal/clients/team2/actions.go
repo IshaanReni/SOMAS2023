@@ -10,9 +10,76 @@ import (
 	"github.com/google/uuid"
 )
 
+func (a *AgentTwo) ChooseLootBox(condition string) Lootboxes {
+	// Implement this method
+	// Calculate utility of all lootboxes (box colour and distance to it), to decide the action (e.g. pedal, brake, turn) to take
+	var topLootboxes []struct {
+		ID          uuid.UUID
+		accordingTo float64
+		Color       utils.Colour
+	}
+	// var top3Lootboxes []struct {
+	// 	ID     uuid.UUID
+	// 	Reward float64
+	// 	Color  utils.Colour
+	// }
+
+	var condVal float64
+	for _, lootbox := range a.gameState.GetLootBoxes() {
+		if condition == "reward" {
+			condVal = lootbox.GetTotalResources()
+		} else if condition == "gain" {
+			condVal = a.CalcExpectedGainForLootbox(lootbox.GetID())
+		}
+		topLootboxes = append(topLootboxes, struct {
+			ID          uuid.UUID
+			accordingTo float64
+			Color       utils.Colour
+		}{ID: lootbox.GetID(), accordingTo: condVal, Color: lootbox.GetColour()})
+	}
+
+	// Sort the lootboxes by gain from the mapping
+	sort.Slice(topLootboxes, func(i, j int) bool {
+		return topLootboxes[i].accordingTo > topLootboxes[j].accordingTo
+	})
+
+	// top3Lootboxes = topLootboxes
+	if len(topLootboxes) > 3 {
+		topLootboxes = topLootboxes[:3]
+	}
+
+	return topLootboxes
+}
+
 func (a *AgentTwo) ChooseOptimalBike() uuid.UUID {
 	// Implement this method
 	// Calculate utility of all bikes for our own survival (remember previous actions (has space, got lootbox, direction) of all bikes so you can choose a bike to move to to max our survival chances) -> check our reputation (trustworthiness, social networks, institutions)
+
+	// Change to bike closest to optimal lootbox
+	// determine optimal by looking at highest reward and good colo
+
+	topLootboxes := a.ChooseLootBox("reward")
+	var chosenLootbox uuid.UUID
+	for _, top3 := range topLootboxes {
+		if top3.Color == a.GetColour() {
+			chosenLootbox = top3.ID
+		} else {
+			chosenLootbox = topLootboxes[0].ID
+		}
+	}
+
+	// find the closest bike to the chosen lootbox
+	lootboxLoc := a.gameState.GetLootBoxes()[chosenLootbox].GetPosition()
+	shortestDist := math.MaxFloat64
+	for _, bikeID := range a.gameState.GetMegaBikes() {
+		bikeLoc := bikeID.GetPosition()
+		currDist := math.Sqrt(math.Pow(lootboxLoc.X-bikeLoc.X, 2) + math.Pow(lootboxLoc.Y-bikeLoc.Y, 2))
+		if currDist < shortestDist {
+			// optimalBike := bikeID.GetID()
+			shortestDist = currDist
+		}
+	}
+	// change bike to optimalBike
 
 	// - We change the bike if an agent sees more than N agents below a social capital threshold.
 	var N int32 = 3
@@ -226,62 +293,20 @@ func (a *AgentTwo) nearestLoot() uuid.UUID {
 }
 
 func (a *AgentTwo) GetOptimalLootbox() uuid.UUID {
-	// highestGain := 0.0
-	// var lootboxID = uuid.UUID{}
-	// m := make(map[uuid.UUID]float64)
-	var topLootboxes []struct {
-		ID    uuid.UUID
-		Gain  float64
-		Color utils.Colour
-	}
-	// agentColor := a.GetColour().String()
-	var top3Lootboxes []struct {
-		ID    uuid.UUID
-		Gain  float64
-		Color utils.Colour
-	}
 
-	for _, lootbox := range a.gameState.GetLootBoxes() {
-		expectedGain := a.CalcExpectedGainForLootbox(lootbox.GetID())
-
-		// 	fmt.Println("lootbox id: ", lootbox.GetID())
-		// 	fmt.Println("lootbox reward: ", lootbox.GetTotalResources())
-		// 	fmt.Println("gain of lootbox: ", expectedGain)
-		// 	fmt.Println("lootbox position: ", lootbox.GetPosition())
-
-		// 	// find the highest gain lootbox
-		// 	if a.CalcExpectedGainForLootbox(lootbox.GetID()) > highestGain {
-		// 		highestGain = a.CalcExpectedGainForLootbox(lootbox.GetID())
-		// 		lootboxID = lootbox.GetID()
-		// 	}
-
-		// }
-
-		// return lootboxID
-		topLootboxes = append(topLootboxes, struct {
-			ID    uuid.UUID
-			Gain  float64
-			Color utils.Colour
-		}{ID: lootbox.GetID(), Gain: expectedGain, Color: lootbox.GetColour()})
-
-		// Sort the lootboxes by gain from the mapping
-	}
-	sort.Slice(topLootboxes, func(i, j int) bool {
-		return topLootboxes[i].Gain > topLootboxes[j].Gain
-	})
-
-	top3Lootboxes = topLootboxes
+	topLootboxes := a.ChooseLootBox("gain")
 	if len(topLootboxes) > 3 {
-		top3Lootboxes = topLootboxes[:3]
+		topLootboxes = topLootboxes[:3]
 	}
-	fmt.Println("top3: ", top3Lootboxes)
-	for _, top3 := range top3Lootboxes {
+	fmt.Println("top3: ", topLootboxes)
+	for _, top3 := range topLootboxes {
 		if top3.Color == a.GetColour() {
 			return top3.ID
 		}
 	}
 
-	return top3Lootboxes[0].ID
+	return topLootboxes[0].ID
+
 }
 
 // To overwrite the BaseBiker's DecideForce method in order to record all the previous actions of all bikes (GetForces) and bikers from gamestates

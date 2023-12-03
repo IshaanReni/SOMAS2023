@@ -56,3 +56,9 @@ type Action struct {
 	GameLoop        int32
 	lootBoxlocation ForceVector //utils.Coordinates
 }
+
+type Lootboxes []struct {
+	ID          uuid.UUID
+	accordingTo float64
+	Color       utils.Colour
+}

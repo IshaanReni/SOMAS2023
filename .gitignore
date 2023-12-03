@@ -6,3 +6,4 @@ game_dump.json
 Test.py
 *.pyc
 venv
+*.txt
