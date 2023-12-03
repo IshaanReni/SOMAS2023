@@ -142,6 +142,6 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 }
 
 func (a *AgentTwo) UpdateGameState(gameState objects.IGameState) {
-	a.UpdateGameState(gameState)
+	a.gameState = gameState
 	a.EnvironmentModule.SetGameState(gameState)
 }
