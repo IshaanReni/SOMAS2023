@@ -2,16 +2,12 @@ package agent
 
 import (
 	obj "SOMAS2023/internal/common/objects"
-	"math"
 
 	"github.com/MattSScott/basePlatformSOMAS/messaging"
 	"github.com/google/uuid"
 )
 
 func (a *AgentTwo) CreateForcesMessage() obj.ForcesMessage {
-	// Currently this returns a default message which sends to all bikers on the biker agent's bike
-	// For team's agent, add your own logic to communicate with other agents
-
 	return obj.ForcesMessage{
 		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowBikers()),
 		AgentId:     a.GetID(),
@@ -20,52 +16,41 @@ func (a *AgentTwo) CreateForcesMessage() obj.ForcesMessage {
 }
 
 func (a *AgentTwo) CreateKickOffMessage() obj.KickOffAgentMessage {
+	agentId := a.SocialCapitalModule.GetMinimumSocialCapital()
 	kickOff := false
-	minAgentId := uuid.Nil
-	minCapital := math.MaxFloat64
-	for agentId, value := range a.SocialCapital {
-		if value < minCapital {
-			kickOff = true
-			minCapital = value
-			minAgentId = agentId
-		}
+	if agentId != a.GetID() {
+		kickOff = true
 	}
 
 	return obj.KickOffAgentMessage{
 		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowBikers()),
-		AgentId:     minAgentId,
+		AgentId:     agentId,
 		KickOff:     kickOff,
 	}
 }
 
 func (a *AgentTwo) HandleKickOffMessage(msg obj.KickOffAgentMessage) {
 	agentId := msg.AgentId
+
 	if agentId != uuid.Nil {
-		a.UpdateSocNetAgent(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
-		a.updateInstitution(agentId, InstitutionEventWeight_KickedOut, InstitutionKickoffEventValue)
+		a.SocialCapitalModule.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
+		a.SocialCapitalModule.UpdateInstitution(agentId, InstitutionEventValue_Kickoff, InstitutionEventWeight_Kickoff)
 	}
 }
 
 func (a *AgentTwo) HandleForcesMessage(msg obj.ForcesMessage) {
-
 	agentId := msg.AgentId
-	agentForces := msg.AgentForces
 	optimalLootbox := a.votedDirection
 	optimalForces := a.GetVotedLootboxForces(optimalLootbox)
+	eventValue := ProjectForce(optimalForces, msg.AgentForces)
 
-	EventValue := a.RuleAdherenceValue(agentId, optimalForces, agentForces)
-
-	a.UpdateSocNetAgent(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
-	a.updateInstitution(agentId, InstitutionEventWeight_Adhereance, EventValue)
-
+	a.SocialCapitalModule.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
+	a.SocialCapitalModule.UpdateInstitution(agentId, InstitutionEventWeight_Adhereance, eventValue)
 }
 
 func (a *AgentTwo) HandleJoiningMessage(msg obj.JoiningAgentMessage) {
-
-	// sender := msg.BaseMessage.GetSender()
-	// agentId := msg.AgentId
-	// bikeId := msg.BikeId
 	agentId := msg.AgentId
-	a.UpdateSocNetAgent(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
-	a.updateInstitution(agentId, InstitutionEventWeight_Accepted, InstitutionAcceptedEventValue)
+
+	a.SocialCapitalModule.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
+	a.SocialCapitalModule.UpdateInstitution(agentId, InstitutionEventValue_Accepted, InstitutionEventWeight_Accepted)
 }

@@ -17,7 +17,8 @@ type AgentTwo struct {
 	*objects.BaseBiker
 
 	// Modules
-	EnvironmentModule *modules.EnvironmentModule
+	EnvironmentModule   *modules.EnvironmentModule
+	SocialCapitalModule *modules.SocialCapital
 
 	// CalculateSocialCapitalOtherAgent: (trustworthiness - cosine distance, social networks - friends, institutions - num of rounds on a bike)
 	SocialCapital      map[uuid.UUID]float64 // Social Captial of other agents

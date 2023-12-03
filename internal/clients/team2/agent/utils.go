@@ -18,6 +18,12 @@ type Action struct {
 	lootBoxlocation modules.ForceVector //utils.Coordinates
 }
 
+func ProjectForce(actual, expected utils.Forces) float64 {
+	actualVec := modules.GetForceVector(actual)
+	expectVec := modules.GetForceVector(expected)
+	return actualVec.CosineSimilarity(*expectVec) * actual.Pedal
+}
+
 func (a *AgentTwo) ChooseOptimalBike() uuid.UUID {
 	// Implement this method
 	// Calculate utility of all bikes for our own survival (remember previous actions (has space, got lootbox, direction) of all bikes so you can choose a bike to move to to max our survival chances) -> check our reputation (trustworthiness, social networks, institutions)
@@ -243,27 +249,4 @@ func (a *AgentTwo) GetOptimalLootbox() uuid.UUID {
 	}
 
 	return top3Lootboxes[0].ID
-}
-
-func normalizeMapValues(capitals map[uuid.UUID]float64) map[uuid.UUID]float64 {
-	if len(capitals) == 0 {
-		return capitals
-	}
-
-	min := 0.0
-	max := 0.0
-	for _, value := range capitals {
-		if value < min {
-			min = value
-		}
-		if value > max {
-			max = value
-		}
-	}
-
-	for key, value := range capitals {
-		capitals[key] = (value - min) / (max - min)
-	}
-
-	return capitals
 }
