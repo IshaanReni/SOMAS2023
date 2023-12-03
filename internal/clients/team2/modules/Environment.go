@@ -99,6 +99,17 @@ func (e *EnvironmentModule) GetDistanceToAudi() float64 {
 	return e.GetDistance(bikePos, audiPos)
 }
 
+func (e *EnvironmentModule) GetBikerAgents() map[uuid.UUID]objects.IBaseBiker {
+	bikes := e.GetBikes()
+	bikerAgents := make(map[uuid.UUID]objects.IBaseBiker)
+	for _, bike := range bikes {
+		for _, biker := range bike.GetAgents() {
+			bikerAgents[biker.GetID()] = biker
+		}
+	}
+	return bikerAgents
+}
+
 ///
 /// Utils
 ///

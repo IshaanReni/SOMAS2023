@@ -16,22 +16,18 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 	a.gameState = a.GetGameState()
 
 	// fmt.Println("DecideAction megabikes: ", a.gameState.GetMegaBikes())
-	for _, bike := range a.GetGameState().GetMegaBikes() {
-		// fmt.Println("DecideAction bike: ", bike.GetID(), " ", bike.GetAgents())
-		for _, agent := range bike.GetAgents() {
-			// get the force for the agent with agentID in actions
-			agentID := agent.GetID()
-			// fmt.Println("DecideAction agentID: ", agentID)
-			for _, action := range a.actions {
-				// fmt.Println("DecideAction action: ", action)
-				if action.AgentID == agentID {
-					// update trustworthiness
-					// Needs to be updated so that a.NearLootbox() is replaced with the lootbox location that the agent says that they're going for
-					a.updateReputation(agentID, a.GetOptimalLootbox(), a.nearestLoot())
-				}
+	for id, _ := range a.EnvironmentModule.GetBikerAgents() {
+		// get the force for the agent with agentID in actions
+		// fmt.Println("DecideAction agentID: ", agentID)
+		for _, action := range a.actions {
+			// fmt.Println("DecideAction action: ", action)
+			if action.AgentID == id {
+				// update trustworthiness
+				// Needs to be updated so that a.NearLootbox() is replaced with the lootbox location that the agent says that they're going for
+				a.updateReputation(id, a.GetOptimalLootbox(), a.nearestLoot())
 			}
-			// a.updateTrustworthiness(agent.GetID(), forcesToVectorConversion(), lootBoxlocation)
 		}
+		// a.updateTrustworthiness(agent.GetID(), forcesToVectorConversion(), lootBoxlocation)
 	}
 	// a.gameState.GetMegaBikes()[a.GetBike()].GetAgents()[0].GetForces()
 	// Check energy level, if below threshold, don't change bike
@@ -75,8 +71,8 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 
 	// NEAREST BOX STRATEGY (MVP)
 	currLocation := a.GetLocation()
-	nearestLoot := a.nearestLoot()
-	currentLootBoxes := a.gameState.GetLootBoxes()
+	nearestLoot := a.EnvironmentModule.GetNearestLootbox(a.GetID())
+	currentLootBoxes := a.EnvironmentModule.GetLootBoxes()
 	fmt.Println("DecideForce entering")
 	fmt.Println("nearestLoot: ", nearestLoot)
 	// fmt.Println("currentLootBoxes: ", currentLootBoxes)
