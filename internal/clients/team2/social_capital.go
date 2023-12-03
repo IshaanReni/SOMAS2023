@@ -77,14 +77,12 @@ func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
 // 1. Rule Adhereance (Follow leader biker/ dictator)
 func (a *AgentTwo) RuleAdhereanceValue(agentID uuid.UUID, expectedAction, actualAction utils.Forces) float64 {
 
-	magnitude := actualAction.Turning.SteeringForce
 	actualVector := forcesToVectorConversion(actualAction)
 	expectedVector := forcesToVectorConversion(expectedAction)
 	similarity := cosineSimilarity(actualVector, expectedVector)
 
-	normalisedTrustworthiness := similarity * magnitude
-	forceApplied := a.forces.Pedal
-	return normalisedTrustworthiness * forceApplied
+	forceApplied := actualAction.Pedal
+	return similarity * forceApplied
 }
 
 // Assume institution rules is only broadcasted within the same bike
