@@ -34,13 +34,24 @@ func (sc *SocialCapital) GetAgentWithMinimumSocialCapital() uuid.UUID {
 	return minAgentId
 }
 
+func (sc *SocialCapital) ClipValues(input float64) float64 {
+	value := input
+	if value < 0 {
+		value = 0
+	}
+	if value > 1 {
+		value = 1
+	}
+	return value
+}
+
 func (sc *SocialCapital) UpdateValue(agentId uuid.UUID, eventValue float64, eventWeight float64, scComponent map[uuid.UUID]float64) {
-	_, exists := sc.Reputation[agentId]
+	_, exists := scComponent[agentId]
 	if !exists {
-		sc.Reputation[agentId] = sc.GetAverage(scComponent)
+		scComponent[agentId] = sc.GetAverage(scComponent)
 	}
 
-	sc.Reputation[agentId] = eventValue * eventWeight
+	scComponent[agentId] = sc.ClipValues(scComponent[agentId] + eventValue*eventWeight)
 }
 
 func (sc *SocialCapital) UpdateReputation(agentId uuid.UUID, eventValue float64, eventWeight float64) {
