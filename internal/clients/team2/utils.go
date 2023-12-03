@@ -9,6 +9,44 @@ import (
 	"github.com/google/uuid"
 )
 
+func (a *AgentTwo) ChooseOptimalBike() uuid.UUID {
+	// Implement this method
+	// Calculate utility of all bikes for our own survival (remember previous actions (has space, got lootbox, direction) of all bikes so you can choose a bike to move to to max our survival chances) -> check our reputation (trustworthiness, social networks, institutions)
+
+	// - We change the bike if an agent sees more than N agents below a social capital threshold.
+	var N int32 = 3
+	SocialCapitalThreshold := 0.5
+	// - N and the Social Capital Threshold could be varied.
+
+	currentBikeID := a.GetBike()
+	a.gameState = a.GetGameState()
+
+	for bikeID, bike := range a.gameState.GetMegaBikes() {
+		for _, agent := range bike.GetAgents() {
+			if a.SocialCapital[agent.GetID()] > SocialCapitalThreshold {
+				a.bikeCounter[bikeID]++
+			}
+		}
+	}
+
+	if a.bikeCounter[currentBikeID] > N {
+		// Stay on bike
+		return currentBikeID
+	} else {
+		// find max bike counter in a.bikeCounter map
+		// change bike to that bike
+		var maxValue int32 = 0
+		maxBikeID := uuid.UUID{}
+		for bikeID, counter := range a.bikeCounter {
+			if maxValue < counter {
+				maxValue = counter
+				maxBikeID = bikeID
+			}
+		}
+		return maxBikeID
+	}
+}
+
 // find the number of agents on the bike
 func (a *AgentTwo) GetAgentNum(bikeID uuid.UUID) float64 {
 	var count = 0.0
