@@ -40,7 +40,9 @@ func (a *AgentTwo) CreateKickOffMessage() obj.KickOffAgentMessage {
 
 func (a *AgentTwo) HandleKickOffMessage(msg obj.KickOffAgentMessage) {
 	agentId := msg.AgentId
-	a.updateInstitution(agentId, InstitutionEventWeight_KickedOut, InstitutionKickoffEventValue)
+	if agentId != uuid.Nil {
+		a.updateInstitution(agentId, InstitutionEventWeight_KickedOut, InstitutionKickoffEventValue)
+	}
 }
 
 func (a *AgentTwo) HandleForcesMessage(msg obj.ForcesMessage) {
