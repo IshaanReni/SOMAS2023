@@ -30,8 +30,8 @@ func NewDecisionModule() *DecisionModule {
 
 // Based on social capital, decide which agent to kick through minimum capital
 func (dm *DecisionModule) MakeKickDecision(inputs DecisionInputs) uuid.UUID {
-	agentID := inputs.SocialCapital.GetAgentWithMinimumSocialCapital()
-	return agentID
+	agentId, _ := inputs.SocialCapital.GetMinimumSocialCapital()
+	return agentId
 }
 
 // Accept based on larger than accept threshold

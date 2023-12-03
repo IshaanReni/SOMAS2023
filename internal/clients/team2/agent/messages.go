@@ -16,7 +16,7 @@ func (a *AgentTwo) CreateForcesMessage() obj.ForcesMessage {
 }
 
 func (a *AgentTwo) CreateKickOffMessage() obj.KickOffAgentMessage {
-	agentId := a.SocialCapitalModule.GetMinimumSocialCapital()
+	agentId, _ := a.SocialCapitalModule.GetMinimumSocialCapital()
 	kickOff := false
 	if agentId != a.GetID() {
 		kickOff = true

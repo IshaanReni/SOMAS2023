@@ -22,7 +22,7 @@ func (sc *SocialCapital) GetAverage(scComponent map[uuid.UUID]float64) float64 {
 	return sum / float64(len(scComponent))
 }
 
-func (sc *SocialCapital) GetAgentWithMinimumSocialCapital() uuid.UUID {
+func (sc *SocialCapital) GetMinimumSocialCapital() (uuid.UUID, float64) {
 	min := math.MaxFloat64
 	minAgentId := uuid.Nil
 	for agentId, value := range sc.Reputation {
@@ -31,7 +31,7 @@ func (sc *SocialCapital) GetAgentWithMinimumSocialCapital() uuid.UUID {
 			minAgentId = agentId
 		}
 	}
-	return minAgentId
+	return minAgentId, min
 }
 
 func (sc *SocialCapital) ClipValues(input float64) float64 {
