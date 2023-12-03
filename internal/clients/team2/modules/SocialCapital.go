@@ -103,8 +103,10 @@ func (sc *SocialCapital) NormalizeValues(component map[uuid.UUID]float64) map[uu
 
 func NewSocialCapital() *SocialCapital {
 	return &SocialCapital{
-		Reputation:    make(map[uuid.UUID]float64),
-		Institution:   make(map[uuid.UUID]float64),
-		SocialNetwork: make(map[uuid.UUID]float64),
+		forgivenessCounter: 0,
+		SocialCapital:      make(map[uuid.UUID]float64),
+		Reputation:         make(map[uuid.UUID]float64),
+		Institution:        make(map[uuid.UUID]float64),
+		SocialNetwork:      make(map[uuid.UUID]float64),
 	}
 }
