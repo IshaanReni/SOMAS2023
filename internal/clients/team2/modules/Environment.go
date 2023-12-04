@@ -4,6 +4,7 @@ import (
 	objects "SOMAS2023/internal/common/objects"
 	"SOMAS2023/internal/common/utils"
 	"math"
+	"math/rand"
 
 	"github.com/google/uuid"
 )
@@ -149,7 +150,20 @@ func (e *EnvironmentModule) GetBikeWithMaximumSocialCapital(sc *SocialCapital) u
 		}
 	}
 
-	return maxBikeId
+	if maxBikeId != uuid.Nil {
+		// If found, change to that bike.
+		return maxBikeId
+	} else {
+		// Otherwise, change to a random bike.
+		i, targetI := 0, rand.Intn(len(bikes))
+		for id := range bikes {
+			if i == targetI {
+				return id
+			}
+			i++
+		}
+		panic("No bikes found to change to.")
+	}
 }
 
 func (e *EnvironmentModule) GetDistanceToAudi() float64 {
