@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"SOMAS2023/internal/clients/team2/modules"
 	"SOMAS2023/internal/common/objects"
 
 	"github.com/google/uuid"
@@ -13,6 +14,16 @@ import (
 // ProposeDirection() uuid.UUID                                    // ** returns the id of the desired lootbox based on internal strategy
 // FinalDirectionVote(proposals []uuid.UUID) voting.LootboxVoteMap // ** stage 3 of direction voting
 // DecideAllocation() voting.IdVoteMap                             // ** decide the allocation parameters
+
+func (a *AgentTwo) ChangeBike() uuid.UUID {
+	decisionInputs := modules.DecisionInputs{SocialCapital: a.SocialCapitalModule, Enviornment: a.EnvironmentModule, AgentID: a.GetID()}
+	isChangeBike, bikeId := a.DecisionModule.MakeBikeChangeDecision(decisionInputs)
+	if isChangeBike {
+		return bikeId
+	} else {
+		return uuid.Nil
+	}
+}
 
 func (a *AgentTwo) DecideAction() objects.BikerAction {
 	return objects.Pedal
