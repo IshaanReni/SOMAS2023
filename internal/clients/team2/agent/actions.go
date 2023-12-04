@@ -2,7 +2,6 @@ package agent
 
 import (
 	"SOMAS2023/internal/common/objects"
-	"math/rand"
 
 	"github.com/google/uuid"
 )
@@ -14,42 +13,6 @@ import (
 // ProposeDirection() uuid.UUID                                    // ** returns the id of the desired lootbox based on internal strategy
 // FinalDirectionVote(proposals []uuid.UUID) voting.LootboxVoteMap // ** stage 3 of direction voting
 // DecideAllocation() voting.IdVoteMap                             // ** decide the allocation parameters
-func (a *AgentTwo) ChangeBike() uuid.UUID {
-	bikes := a.EnvironmentModule.GetBikes()
-
-	// Find bike to change to.
-	chgBikeId := uuid.Nil
-	for id, bike := range bikes {
-		cnt := 0
-		for _, agent := range bike.GetAgents() {
-			sc, ok := a.SocialCapital[agent.GetID()]
-			if ok && sc < 0.5 {
-				cnt++
-			}
-		}
-		if cnt > 2 {
-			chgBikeId = id
-		}
-	}
-
-	if chgBikeId != uuid.Nil {
-		// If found, change to that bike.
-		return chgBikeId
-	} else {
-		// Otherwise, change to a random bike.
-		i, targetI := 0, rand.Intn(len(bikes))
-		for id := range bikes {
-			if i == targetI {
-				return id
-			}
-			i++
-		}
-		panic("No bikes found to change to.")
-	}
-
-	// If none found, change to a random bike.
-
-}
 
 func (a *AgentTwo) DecideAction() objects.BikerAction {
 	return objects.Pedal
