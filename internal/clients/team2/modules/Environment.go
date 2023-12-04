@@ -150,7 +150,7 @@ func (e *EnvironmentModule) GetBikeWithMaximumSocialCapital(sc *SocialCapital) u
 		}
 	}
 
-	if maxBikeId != uuid.Nil {
+	if maxBikeId != uuid.Nil || maxBikeId == e.BikeId {
 		// If found, change to that bike.
 		return maxBikeId
 	} else {
