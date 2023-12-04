@@ -8,6 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	AudiRange = 10
+)
+
 type EnvironmentModule struct {
 	AgentId   uuid.UUID
 	GameState objects.IGameState
@@ -32,6 +36,10 @@ func (e *EnvironmentModule) GetLootBoxes() map[uuid.UUID]objects.ILootBox {
 
 func (e *EnvironmentModule) GetLootBoxById(lootboxId uuid.UUID) objects.ILootBox {
 	return e.GetLootBoxes()[lootboxId]
+}
+
+func (e *EnvironmentModule) GetLootboxPos(lootboxId uuid.UUID) utils.Coordinates {
+	return e.GetLootBoxById(lootboxId).GetPosition()
 }
 
 func (e *EnvironmentModule) GetLootBoxesByColor(color utils.Colour) map[uuid.UUID]objects.ILootBox {
@@ -77,6 +85,21 @@ func (e *EnvironmentModule) GetDistanceToLootbox(lootboxId uuid.UUID) float64 {
 	return e.GetDistance(bikePos, agntPos)
 }
 
+// Gets lootbox with the highest gain.
+// We define gain as the distance to the lootbox divided by the total resources in the lootbox.
+func (e *EnvironmentModule) GetHighestGainLootbox() uuid.UUID {
+	bestGain := float64(0)
+	bestLoot := uuid.Nil
+	for _, lootboxId := range e.GetLootBoxes() {
+		gain := e.GetDistanceToLootbox(lootboxId.GetID()) / lootboxId.GetTotalResources()
+		if gain > bestGain {
+			bestGain = gain
+			bestLoot = lootboxId.GetID()
+		}
+	}
+	return bestLoot
+}
+
 ///
 /// Bikes
 ///
@@ -91,6 +114,14 @@ func (e *EnvironmentModule) GetBikes() map[uuid.UUID]objects.IMegaBike {
 
 func (e *EnvironmentModule) GetBikeById(bikeId uuid.UUID) objects.IMegaBike {
 	return e.GetBikes()[bikeId]
+}
+
+func (e *EnvironmentModule) GetBike() objects.IMegaBike {
+	return e.GetBikeById(e.BikeId)
+}
+
+func (e *EnvironmentModule) GetBikeOrientation() float64 {
+	return e.GetBikeById(e.BikeId).GetOrientation()
 }
 
 func (e *EnvironmentModule) GetBikeWithMaximumSocialCapital(sc *SocialCapital) uuid.UUID {
@@ -125,6 +156,10 @@ func (e *EnvironmentModule) GetDistanceToAudi() float64 {
 	bikePos, audiPos := e.GetBikeById(e.BikeId).GetPosition(), e.GetAudi().GetPosition()
 
 	return e.GetDistance(bikePos, audiPos)
+}
+
+func (e *EnvironmentModule) IsAudiNear() bool {
+	return e.GetDistanceToAudi() <= AudiRange
 }
 
 func (e *EnvironmentModule) GetBikerAgents() map[uuid.UUID]objects.IBaseBiker {

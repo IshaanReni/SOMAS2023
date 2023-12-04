@@ -8,25 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// func (a *AgentTwo) updateReputation(agentID uuid.UUID, ourDesiredLootbox uuid.UUID, theirDesiredLootbox uuid.UUID) {
-// 	// Compare our desired lootbox with their desired lootbox
-// 	// We retain a moving average of their reputation to not drastically make a change
-// 	// If they are the same, we increase their reputation
-
-// 	if _, ok := a.Reputation[agentID]; !ok {
-// 		a.Reputation[agentID] = avgComponentValue(a.Reputation)
-// 	}
-
-// 	if ourDesiredLootbox == theirDesiredLootbox {
-// 		// If they are the same, we increase their reputation
-// 		a.Reputation[agentID] = (a.Reputation[agentID]*float64(a.GameIterations) + 1) / (float64(a.GameIterations) + 1)
-// 	} else {
-// 		// If they are different, we decrease their reputation
-// 		a.Reputation[agentID] = (a.Reputation[agentID]*float64(a.GameIterations) - 1) / (float64(a.GameIterations) + 1)
-// 	}
-
-// 	fmt.Println("Reputation: ", a.Reputation)
-// }
+// TODO: Add an update reputation function.
 
 //////
 /// Institutions
@@ -61,18 +43,3 @@ func (a *AgentTwo) RuleAdherenceValue(agentID uuid.UUID, expectedAction, actualA
 	expectVec := modules.GetForceVector(expectedAction)
 	return actualVec.CosineSimilarity(*expectVec) * actualAction.Pedal
 }
-
-// // func (a *AgentTwo) updateInstitution(agentID uuid.UUID) float64 {
-
-// // 	// return 0.5 // This is just a placeholder value
-// // }
-
-// // func (a *AgentTwo) calculateTrustworthiness(agentID uuid.UUID) float64 {
-
-// // 	return 0.5 // This is just a placeholder value
-// // }
-
-// // func (a *AgentTwo) calculateInstitution(agentID uuid.UUID) float64 {
-
-// // 	// return 0.5 // This is just a placeholder value
-// // }

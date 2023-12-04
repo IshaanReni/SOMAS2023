@@ -2,143 +2,130 @@ package agent
 
 import (
 	"SOMAS2023/internal/common/objects"
-	"SOMAS2023/internal/common/utils"
-	"fmt"
-	"math"
+	"math/rand"
 
 	"github.com/google/uuid"
 )
 
-func (a *AgentTwo) DecideAction() objects.BikerAction {
-	fmt.Println("DecideAction entering")
-	// lootBoxlocation := Vector{X: 0.0, Y: 0.0} // need to change this later on (possibly need to alter the updateTrustworthiness function)
-	//update agent's trustworthiness every round pretty much at the start of each epoch
-	a.gameState = a.GetGameState()
+// DecideAction() BikerAction                                      // ** determines what action the agent is going to take this round. (changeBike or Pedal)
+// DecideForce(direction uuid.UUID)                                // ** defines the vector you pass to the bike: [pedal, brake, turning]
+// DecideJoining(pendinAgents []uuid.UUID) map[uuid.UUID]bool      // ** decide whether to accept or not accept bikers, ranks the ones
+// ChangeBike() uuid.UUID                                          // ** called when biker wants to change bike, it will choose which bike to try and join
+// ProposeDirection() uuid.UUID                                    // ** returns the id of the desired lootbox based on internal strategy
+// FinalDirectionVote(proposals []uuid.UUID) voting.LootboxVoteMap // ** stage 3 of direction voting
+// DecideAllocation() voting.IdVoteMap                             // ** decide the allocation parameters
+func (a *AgentTwo) ChangeBike() uuid.UUID {
+	bikes := a.EnvironmentModule.GetBikes()
 
-	// fmt.Println("DecideAction megabikes: ", a.gameState.GetMegaBikes())
-	for id := range a.EnvironmentModule.GetBikerAgents() {
-		// get the force for the agent with agentID in actions
-		// fmt.Println("DecideAction agentID: ", agentID)
-		for _, action := range a.actions {
-			// fmt.Println("DecideAction action: ", action)
-			if action.AgentID == id {
-				// update trustworthiness
-				// Needs to be updated so that a.NearLootbox() is replaced with the lootbox location that the agent says that they're going for
-				a.updateReputation(id, a.GetOptimalLootbox(), a.nearestLoot())
+	// Find bike to change to.
+	chgBikeId := uuid.Nil
+	for id, bike := range bikes {
+		cnt := 0
+		for _, agent := range bike.GetAgents() {
+			sc, ok := a.SocialCapital[agent.GetID()]
+			if ok && sc < 0.5 {
+				cnt++
 			}
 		}
-		// a.updateTrustworthiness(agent.GetID(), forcesToVectorConversion(), lootBoxlocation)
+		if cnt > 2 {
+			chgBikeId = id
+		}
 	}
-	// a.gameState.GetMegaBikes()[a.GetBike()].GetAgents()[0].GetForces()
-	// Check energy level, if below threshold, don't change bike
-	// energyThreshold := 0.2
-	// fmt.Println("OUTSIDE FOR LOOP: ", a.GetEnergyLevel(), energyThreshold, a.ChooseOptimalBike(), a.GetBike())
 
-	// TODO: ChangeBike is broken in GameLoop
-	// if (a.GetEnergyLevel() < energyThreshold) || (a.ChooseOptimalBike() == a.GetBike()) {
-	// 	return objects.Pedal
-	// } else {
-	// 	// random for now, changeBike changes to a random uuid for now.
-	// 	return objects.ChangeBike
-	// }
-	return objects.Pedal
+	if chgBikeId != uuid.Nil {
+		// If found, change to that bike.
+		return chgBikeId
+	} else {
+		// Otherwise, change to a random bike.
+		i, targetI := 0, rand.Intn(len(bikes))
+		for id := range bikes {
+			if i == targetI {
+				return id
+			}
+			i++
+		}
+		panic("No bikes found to change to.")
+	}
 
-	// TODO: When we have access to limbo/void then we can worry about these
-	// Utility = expected gain - cost of changing bike(no of rounds in the void * energy level drain)
-	// no of rounds in the void = 1 + (distance to lootbox / speed of bike)
+	// If none found, change to a random bike.
+
 }
 
-// To overwrite the BaseBiker's DecideForce method in order to record all the previous actions of all bikes (GetForces) and bikers from gamestates
+func (a *AgentTwo) DecideAction() objects.BikerAction {
+	return objects.Pedal
+	// TODO: Use SC in decide action.
+
+	// fmt.Println("DecideAction entering")
+	// // lootBoxlocation := Vector{X: 0.0, Y: 0.0} // need to change this later on (possibly need to alter the updateTrustworthiness function)
+	// //update agent's trustworthiness every round pretty much at the start of each epoch
+	// a.gameState = a.GetGameState()
+
+	// // fmt.Println("DecideAction megabikes: ", a.gameState.GetMegaBikes())
+	// for id := range a.EnvironmentModule.GetBikerAgents() {
+	// 	// get the force for the agent with agentID in actions
+	// 	// fmt.Println("DecideAction agentID: ", agentID)
+	// 	for _, action := range a.actions {
+	// 		// fmt.Println("DecideAction action: ", action)
+	// 		if action.AgentID == id {
+	// 			// update trustworthiness
+	// 			// Needs to be updated so that a.NearLootbox() is replaced with the lootbox location that the agent says that they're going for
+	// 			a.updateReputation(id, a.GetOptimalLootbox(), a.nearestLoot())
+	// 		}
+	// 	}
+	// 	// a.updateTrustworthiness(agent.GetID(), forcesToVectorConversion(), lootBoxlocation)
+	// }
+	// // a.gameState.GetMegaBikes()[a.GetBike()].GetAgents()[0].GetForces()
+	// // Check energy level, if below threshold, don't change bike
+	// // energyThreshold := 0.2
+	// // fmt.Println("OUTSIDE FOR LOOP: ", a.GetEnergyLevel(), energyThreshold, a.ChooseOptimalBike(), a.GetBike())
+
+	// // TODO: ChangeBike is broken in GameLoop
+	// // if (a.GetEnergyLevel() < energyThreshold) || (a.ChooseOptimalBike() == a.GetBike()) {
+	// // 	return objects.Pedal
+	// // } else {
+	// // 	// random for now, changeBike changes to a random uuid for now.
+	// // 	return objects.ChangeBike
+	// // }
+	// return objects.Pedal
+
+	// // TODO: When we have access to limbo/void then we can worry about these
+	// // Utility = expected gain - cost of changing bike(no of rounds in the void * energy level drain)
+	// // no of rounds in the void = 1 + (distance to lootbox / speed of bike)
+}
+
 func (a *AgentTwo) DecideForce(direction uuid.UUID) {
+	// TODO: Use SC in decide forces.
+	// if a.EnvironmentModule.IsAudiNear() {
+	// 	// Move in opposite direction to Audi.
+	// 	bikePos, audiPos := a.EnvironmentModule.GetBike().GetPosition(), a.EnvironmentModule.GetAudi().GetPosition()
 
-	a.votedDirection = direction
-	fmt.Println("DecideForce entering")
-	fmt.Println("agent energy before: ", a.GetEnergyLevel())
-	// Pedal, Brake, Turning
-	// GetPreviousAction() -> get previous action of all bikes and bikers from gamestates
-	// GetVotedLootbox() -> get voted lootbox from gamestates
-	// GetOptimalLootbox() -> get optimal lootbox for ourself from gamestates
-	// probabilityOfConformity = selfSocialCapital
-	// Generate random number between 0 and 1
-	// if random number < probabilityOfConformity, then conform
-	// else, don't conform
+	// 	deltaX := -audiPos.X + bikePos.X
+	// 	deltaY := -audiPos.Y + bikePos.Y
+	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.EnvironmentModule.GetBikeOrientation()
 
-	// CalculateForceAndSteer(Lootbox) -> calculate force and steer towards lootbox
-	// set a.forces.steerbike == True
+	// 	forces := utils.Forces{
+	// 		Pedal:   utils.BikerMaxForce,
+	// 		Brake:   0.0,
+	// 		Turning: utils.TurningDecision{SteerBike: true, SteeringForce: steerA},
+	// 	}
+	// 	a.SetForces(forces)
+	// } else {
+	// 	// Move towards lootbox with highest gain.
+	// 	// TODO: Use SC in decision.
+	// 	lootbox := a.EnvironmentModule.GetHighestGainLootbox()
 
-	a.GetPreviousAction()
-	a.gameState = a.GetGameState()
+	// 	bikePos, lootboxPos := a.EnvironmentModule.GetBike().GetPosition(), a.EnvironmentModule.GetLootboxPos(lootbox)
+	// 	deltaX := lootboxPos.X - bikePos.X
+	// 	deltaY := lootboxPos.Y - bikePos.Y
+	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.EnvironmentModule.GetBikeOrientation()
 
-	// NEAREST BOX STRATEGY (MVP)
-	currLocation := a.GetLocation()
-	nearestLoot := a.EnvironmentModule.GetNearestLootbox(a.GetID())
-	currentLootBoxes := a.EnvironmentModule.GetLootBoxes()
-	fmt.Println("DecideForce entering")
-	fmt.Println("nearestLoot: ", nearestLoot)
-	// fmt.Println("currentLootBoxes: ", currentLootBoxes)
-	fmt.Println("currLocation: ", currLocation, " bike: ", a.GetBike(), " energy: ", a.GetEnergyLevel(), " points: ", a.GetPoints())
-
-	// FIND THE OPTIMAL LOOTBOX AND MOVE TOWARDS IT
-	// nearestLoot = a.GetOptimalLootbox()
-	nearestLoot = a.GetOptimalLootbox()
-	// Check if there are lootboxes available and move towards closest one
-	// if len(currentLootBoxes) > 0 {
-	if !a.AvoidOwdi(nearestLoot) {
-		targetPos := currentLootBoxes[nearestLoot].GetPosition()
-
-		deltaX := targetPos.X - currLocation.X
-		deltaY := targetPos.Y - currLocation.Y
-		angle := math.Atan2(deltaY, deltaX)
-		normalisedAngle := angle / math.Pi
-
-		// Default BaseBiker will always
-		turningDecision := utils.TurningDecision{
-			SteerBike:     true,
-			SteeringForce: normalisedAngle - a.gameState.GetMegaBikes()[a.GetBike()].GetOrientation(),
-		}
-
-		nearestBoxForces := utils.Forces{
-			Pedal:   utils.BikerMaxForce,
-			Brake:   0.0,
-			Turning: turningDecision,
-		}
-		a.SetForces(nearestBoxForces)
-	} else { // otherwise move away from audi
-		audiPos := a.GetGameState().GetAudi().GetPosition()
-
-		deltaX := audiPos.X - currLocation.X
-		deltaY := audiPos.Y - currLocation.Y
-
-		// Steer in opposite direction to audi
-		angle := math.Atan2(deltaY, deltaX)
-		normalisedAngle := angle / math.Pi
-
-		// Steer in opposite direction to audi
-		var flipAngle float64
-		if normalisedAngle < 0.0 {
-			flipAngle = normalisedAngle + 1.0
-		} else if normalisedAngle > 0.0 {
-			flipAngle = normalisedAngle - 1.0
-		}
-
-		// Default BaseBiker will always
-		turningDecision := utils.TurningDecision{
-			SteerBike:     true,
-			SteeringForce: flipAngle - a.gameState.GetMegaBikes()[a.megaBikeId].GetOrientation(),
-		}
-
-		escapeAudiForces := utils.Forces{
-			Pedal:   utils.BikerMaxForce,
-			Brake:   0.0,
-			Turning: turningDecision,
-		}
-		a.SetForces(escapeAudiForces)
-	}
-
-	a.GameIterations++
-	fmt.Println("GameIterations ", a.GameIterations)
-	fmt.Println("agent energy after: ", a.GetEnergyLevel())
-	// fmt.Println(actions)
+	// 	forces := utils.Forces{
+	// 		Pedal:   utils.BikerMaxForce,
+	// 		Brake:   0.0,
+	// 		Turning: utils.TurningDecision{SteerBike: true, SteeringForce: steerA},
+	// 	}
+	// 	a.SetForces(forces)
+	// }
 }
 
 func (a *AgentTwo) UpdateGameState(gameState objects.IGameState) {
