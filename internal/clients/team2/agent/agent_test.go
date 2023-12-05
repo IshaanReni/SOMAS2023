@@ -13,8 +13,8 @@ func TestNewBaseTeam2Biker(t *testing.T) {
 	agentId := uuid.New()
 	agent := NewBaseTeam2Biker(agentId)
 	assert.NotNil(t, agent)
-	assert.Equal(t, 0, agent.points)
-	assert.Equal(t, 1.0, agent.energyLevel)
+	assert.Equal(t, 0, agent.State.Points)
+	assert.Equal(t, 1.0, agent.State.EnergyLevel)
 }
 
 func TestClippingSocialCapital(t *testing.T) {
@@ -22,11 +22,11 @@ func TestClippingSocialCapital(t *testing.T) {
 	testAgentID := uuid.New()
 
 	// Set up predefined values for trust, institution, and network
-	agent.SocialCapitalModule.Reputation[testAgentID] = agent.SocialCapitalModule.ClipValues(1.5)
-	agent.SocialCapitalModule.Institution[testAgentID] = agent.SocialCapitalModule.ClipValues(-0.3)
+	agent.Modules.SocialCapital.Reputation[testAgentID] = agent.Modules.SocialCapital.ClipValues(1.3)
+	agent.Modules.SocialCapital.Institution[testAgentID] = agent.Modules.SocialCapital.ClipValues(-0.3)
 
-	assert.Equal(t, 1.0, agent.SocialCapitalModule.Reputation[testAgentID])
-	assert.Equal(t, 0.0, agent.SocialCapitalModule.Institution[testAgentID])
+	assert.Equal(t, 1.0, agent.Modules.SocialCapital.Reputation[testAgentID])
+	assert.Equal(t, 0.0, agent.Modules.SocialCapital.Institution[testAgentID])
 }
 
 func TestForcesToVectorConversion(t *testing.T) {

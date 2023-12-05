@@ -24,7 +24,7 @@ func ProjectForce(actual, expected utils.Forces) float64 {
 
 // Get the direction to the voted lootbox
 func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
-	lootbox := a.gameState.GetLootBoxes()[lootboxID]
+	lootbox := a.EnvironmentState.GameState.GetLootBoxes()[lootboxID]
 	lootboxPositionX, lootboxPositionY := lootbox.GetPosition().X, lootbox.GetPosition().Y
 	agentPositionX, agentPositionY := a.GetLocation().X, a.GetLocation().Y
 	deltaX := lootboxPositionX - agentPositionX
@@ -33,7 +33,7 @@ func (a *AgentTwo) GetVotedLootboxForces(lootboxID uuid.UUID) utils.Forces {
 	normalisedAngle := angle / math.Pi
 	turningDecision := utils.TurningDecision{
 		SteerBike:     true,
-		SteeringForce: normalisedAngle - a.gameState.GetMegaBikes()[a.GetBike()].GetOrientation(),
+		SteeringForce: normalisedAngle - a.EnvironmentState.GameState.GetMegaBikes()[a.GetBike()].GetOrientation(),
 	}
 	return utils.Forces{
 		Pedal:   utils.BikerMaxForce,

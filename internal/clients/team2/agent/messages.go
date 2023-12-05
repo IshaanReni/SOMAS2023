@@ -11,12 +11,12 @@ func (a *AgentTwo) CreateForcesMessage() obj.ForcesMessage {
 	return obj.ForcesMessage{
 		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowBikers()),
 		AgentId:     a.GetID(),
-		AgentForces: a.forces,
+		AgentForces: a.State.Forces,
 	}
 }
 
 func (a *AgentTwo) CreateKickOffMessage() obj.KickOffAgentMessage {
-	agentId, _ := a.SocialCapitalModule.GetMinimumSocialCapital()
+	agentId, _ := a.Modules.SocialCapital.GetMinimumSocialCapital()
 	kickOff := false
 	if agentId != a.GetID() {
 		kickOff = true
@@ -33,24 +33,24 @@ func (a *AgentTwo) HandleKickOffMessage(msg obj.KickOffAgentMessage) {
 	agentId := msg.AgentId
 
 	if agentId != uuid.Nil {
-		a.SocialCapitalModule.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
-		a.SocialCapitalModule.UpdateInstitution(agentId, InstitutionEventValue_Kickoff, InstitutionEventWeight_Kickoff)
+		a.Modules.SocialCapital.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
+		a.Modules.SocialCapital.UpdateInstitution(agentId, InstitutionEventValue_Kickoff, InstitutionEventWeight_Kickoff)
 	}
 }
 
 func (a *AgentTwo) HandleForcesMessage(msg obj.ForcesMessage) {
 	agentId := msg.AgentId
-	optimalLootbox := a.votedDirection
+	optimalLootbox := a.EnvironmentState.VotedDirection
 	optimalForces := a.GetVotedLootboxForces(optimalLootbox)
 	eventValue := ProjectForce(optimalForces, msg.AgentForces)
 
-	a.SocialCapitalModule.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
-	a.SocialCapitalModule.UpdateInstitution(agentId, InstitutionEventWeight_Adhereance, eventValue)
+	a.Modules.SocialCapital.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
+	a.Modules.SocialCapital.UpdateInstitution(agentId, InstitutionEventWeight_Adhereance, eventValue)
 }
 
 func (a *AgentTwo) HandleJoiningMessage(msg obj.JoiningAgentMessage) {
 	agentId := msg.AgentId
 
-	a.SocialCapitalModule.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
-	a.SocialCapitalModule.UpdateInstitution(agentId, InstitutionEventValue_Accepted, InstitutionEventWeight_Accepted)
+	a.Modules.SocialCapital.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
+	a.Modules.SocialCapital.UpdateInstitution(agentId, InstitutionEventValue_Accepted, InstitutionEventWeight_Accepted)
 }

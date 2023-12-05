@@ -16,8 +16,8 @@ import (
 // DecideAllocation() voting.IdVoteMap                             // ** decide the allocation parameters
 
 func (a *AgentTwo) ChangeBike() uuid.UUID {
-	decisionInputs := modules.DecisionInputs{SocialCapital: a.SocialCapitalModule, Enviornment: a.EnvironmentModule, AgentID: a.GetID()}
-	isChangeBike, bikeId := a.DecisionModule.MakeBikeChangeDecision(decisionInputs)
+	decisionInputs := modules.DecisionInputs{SocialCapital: a.Modules.SocialCapital, Enviornment: a.Modules.Environment, AgentID: a.GetID()}
+	isChangeBike, bikeId := a.Modules.Decision.MakeBikeChangeDecision(decisionInputs)
 	if isChangeBike {
 		return bikeId
 	} else {
@@ -35,7 +35,7 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 	// a.gameState = a.GetGameState()
 
 	// // fmt.Println("DecideAction megabikes: ", a.gameState.GetMegaBikes())
-	// for id := range a.EnvironmentModule.GetBikerAgents() {
+	// for id := range a.Modules.Environment.GetBikerAgents() {
 	// 	// get the force for the agent with agentID in actions
 	// 	// fmt.Println("DecideAction agentID: ", agentID)
 	// 	for _, action := range a.actions {
@@ -69,13 +69,13 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 
 func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 	// TODO: Use SC in decide forces.
-	// if a.EnvironmentModule.IsAudiNear() {
+	// if a.Modules.Environment.IsAudiNear() {
 	// 	// Move in opposite direction to Audi.
-	// 	bikePos, audiPos := a.EnvironmentModule.GetBike().GetPosition(), a.EnvironmentModule.GetAudi().GetPosition()
+	// 	bikePos, audiPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetAudi().GetPosition()
 
 	// 	deltaX := -audiPos.X + bikePos.X
 	// 	deltaY := -audiPos.Y + bikePos.Y
-	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.EnvironmentModule.GetBikeOrientation()
+	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.Modules.Environment.GetBikeOrientation()
 
 	// 	forces := utils.Forces{
 	// 		Pedal:   utils.BikerMaxForce,
@@ -86,12 +86,12 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 	// } else {
 	// 	// Move towards lootbox with highest gain.
 	// 	// TODO: Use SC in decision.
-	// 	lootbox := a.EnvironmentModule.GetHighestGainLootbox()
+	// 	lootbox := a.Modules.Environment.GetHighestGainLootbox()
 
-	// 	bikePos, lootboxPos := a.EnvironmentModule.GetBike().GetPosition(), a.EnvironmentModule.GetLootboxPos(lootbox)
+	// 	bikePos, lootboxPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetLootboxPos(lootbox)
 	// 	deltaX := lootboxPos.X - bikePos.X
 	// 	deltaY := lootboxPos.Y - bikePos.Y
-	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.EnvironmentModule.GetBikeOrientation()
+	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.Modules.Environment.GetBikeOrientation()
 
 	// 	forces := utils.Forces{
 	// 		Pedal:   utils.BikerMaxForce,
@@ -103,6 +103,6 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 }
 
 func (a *AgentTwo) UpdateGameState(gameState objects.IGameState) {
-	a.gameState = gameState
-	a.EnvironmentModule.SetGameState(gameState)
+	a.EnvironmentState.GameState = gameState
+	a.Modules.Environment.SetGameState(gameState)
 }

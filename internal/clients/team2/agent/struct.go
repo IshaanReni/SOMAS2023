@@ -12,49 +12,61 @@ type IBaseBiker interface {
 	objects.IBaseBiker
 }
 
+type AgentModules struct {
+	Environment   *modules.EnvironmentModule
+	SocialCapital *modules.SocialCapital
+	Decision      *modules.DecisionModule
+}
+
+type AgentState struct {
+	Actions      []Action
+	SoughtColour utils.Colour
+	OnBike       bool
+	EnergyLevel  float64
+	Points       int
+	Forces       utils.Forces
+}
+
+type EnvironmentState struct {
+	GameState        objects.IGameState
+	MegaBikeId       uuid.UUID
+	VotedDirection   uuid.UUID
+	AllocationParams objects.ResourceAllocationParams
+	BikeCounter      map[uuid.UUID]int32
+}
+
 type AgentTwo struct {
-	// BaseBiker represents a basic biker agent.
-	*objects.BaseBiker
-
-	// Modules
-	EnvironmentModule   *modules.EnvironmentModule
-	SocialCapitalModule *modules.SocialCapital
-	DecisionModule      *modules.DecisionModule
-
-	gameState        objects.IGameState // updated by the server at every round
-	megaBikeId       uuid.UUID
-	actions          []Action
-	bikeCounter      map[uuid.UUID]int32
-	soughtColour     utils.Colour // the colour of the lootbox that the agent is currently seeking
-	onBike           bool
-	energyLevel      float64 // float between 0 and 1
-	points           int
-	forces           utils.Forces
-	allocationParams objects.ResourceAllocationParams
-	votedDirection   uuid.UUID
+	*objects.BaseBiker // Embedding the BaseBiker
+	Modules            AgentModules
+	State              AgentState
+	EnvironmentState   EnvironmentState
 }
 
 func NewBaseTeam2Biker(agentId uuid.UUID) *AgentTwo {
 	color := utils.GenerateRandomColour()
 	baseBiker := objects.GetBaseBiker(color, agentId)
+
 	return &AgentTwo{
-		// BaseBiker
 		BaseBiker: baseBiker,
-
-		// Modules
-		EnvironmentModule:   modules.GetEnvironmentModule(baseBiker.GetID(), baseBiker.GetGameState(), baseBiker.GetMegaBikeId()),
-		SocialCapitalModule: modules.NewSocialCapital(),
-		DecisionModule:      modules.NewDecisionModule(),
-
-		gameState:        nil,
-		megaBikeId:       uuid.UUID{},
-		bikeCounter:      make(map[uuid.UUID]int32),
-		soughtColour:     color,
-		onBike:           false,
-		energyLevel:      1.0,
-		points:           0,
-		forces:           utils.Forces{},
-		allocationParams: objects.ResourceAllocationParams{},
-		votedDirection:   uuid.UUID{},
+		Modules: AgentModules{
+			Environment:   modules.GetEnvironmentModule(baseBiker.GetID(), baseBiker.GetGameState(), baseBiker.GetMegaBikeId()),
+			SocialCapital: modules.NewSocialCapital(),
+			Decision:      modules.NewDecisionModule(),
+		},
+		State: AgentState{
+			Actions:      []Action{},
+			SoughtColour: color,
+			OnBike:       false,
+			EnergyLevel:  1.0,
+			Points:       0,
+			Forces:       utils.Forces{},
+		},
+		EnvironmentState: EnvironmentState{
+			GameState:        baseBiker.GetGameState(),
+			MegaBikeId:       baseBiker.GetMegaBikeId(),
+			BikeCounter:      make(map[uuid.UUID]int32),
+			AllocationParams: objects.ResourceAllocationParams{},
+			VotedDirection:   uuid.UUID{},
+		},
 	}
 }
