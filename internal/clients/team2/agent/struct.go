@@ -38,11 +38,10 @@ type AgentState struct {
 }
 
 type EnvironmentState struct {
-	GameState        objects.IGameState
-	MegaBikeId       uuid.UUID
-	VotedDirection   uuid.UUID
-	AllocationParams objects.ResourceAllocationParams
-	BikeCounter      map[uuid.UUID]int32
+	GameState      objects.IGameState
+	MegaBikeId     uuid.UUID
+	VotedDirection uuid.UUID
+	BikeCounter    map[uuid.UUID]int32
 }
 
 type AgentTwo struct {
@@ -59,7 +58,7 @@ func NewBaseTeam2Biker(agentId uuid.UUID) *AgentTwo {
 	return &AgentTwo{
 		BaseBiker: baseBiker,
 		Modules: AgentModules{
-			Environment:   modules.GetEnvironmentModule(baseBiker.GetID(), baseBiker.GetGameState(), baseBiker.GetMegaBikeId()),
+			Environment:   modules.GetEnvironmentModule(baseBiker.GetID(), baseBiker.GetGameState(), baseBiker.GetBike()),
 			SocialCapital: modules.NewSocialCapital(),
 			Decision:      modules.NewDecisionModule(),
 			Utils:         modules.NewUtilsModule(),
@@ -73,11 +72,10 @@ func NewBaseTeam2Biker(agentId uuid.UUID) *AgentTwo {
 			Forces:       utils.Forces{},
 		},
 		EnvironmentState: EnvironmentState{
-			GameState:        baseBiker.GetGameState(),
-			MegaBikeId:       baseBiker.GetMegaBikeId(),
-			BikeCounter:      make(map[uuid.UUID]int32),
-			AllocationParams: objects.ResourceAllocationParams{},
-			VotedDirection:   uuid.UUID{},
+			GameState:      baseBiker.GetGameState(),
+			MegaBikeId:     baseBiker.GetBike(),
+			BikeCounter:    make(map[uuid.UUID]int32),
+			VotedDirection: uuid.UUID{},
 		},
 	}
 }
