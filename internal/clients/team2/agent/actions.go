@@ -28,45 +28,15 @@ func (a *AgentTwo) ChangeBike() uuid.UUID {
 }
 
 func (a *AgentTwo) DecideAction() objects.BikerAction {
-	return objects.Pedal
-	// TODO: Use SC in decide action.
+	avgSocialCapital := a.Modules.SocialCapital.GetAverage(a.Modules.SocialCapital.SocialCapital)
 
-	// fmt.Println("DecideAction entering")
-	// // lootBoxlocation := Vector{X: 0.0, Y: 0.0} // need to change this later on (possibly need to alter the updateTrustworthiness function)
-	// //update agent's trustworthiness every round pretty much at the start of each epoch
-	// a.gameState = a.GetGameState()
-
-	// // fmt.Println("DecideAction megabikes: ", a.gameState.GetMegaBikes())
-	// for id := range a.Modules.Environment.GetBikerAgents() {
-	// 	// get the force for the agent with agentID in actions
-	// 	// fmt.Println("DecideAction agentID: ", agentID)
-	// 	for _, action := range a.actions {
-	// 		// fmt.Println("DecideAction action: ", action)
-	// 		if action.AgentID == id {
-	// 			// update trustworthiness
-	// 			// Needs to be updated so that a.NearLootbox() is replaced with the lootbox location that the agent says that they're going for
-	// 			a.updateReputation(id, a.GetOptimalLootbox(), a.nearestLoot())
-	// 		}
-	// 	}
-	// 	// a.updateTrustworthiness(agent.GetID(), forcesToVectorConversion(), lootBoxlocation)
-	// }
-	// // a.gameState.GetMegaBikes()[a.GetBike()].GetAgents()[0].GetForces()
-	// // Check energy level, if below threshold, don't change bike
-	// // energyThreshold := 0.2
-	// // fmt.Println("OUTSIDE FOR LOOP: ", a.GetEnergyLevel(), energyThreshold, a.ChooseOptimalBike(), a.GetBike())
-
-	// // TODO: ChangeBike is broken in GameLoop
-	// // if (a.GetEnergyLevel() < energyThreshold) || (a.ChooseOptimalBike() == a.GetBike()) {
-	// // 	return objects.Pedal
-	// // } else {
-	// // 	// random for now, changeBike changes to a random uuid for now.
-	// // 	return objects.ChangeBike
-	// // }
-	// return objects.Pedal
-
-	// // TODO: When we have access to limbo/void then we can worry about these
-	// // Utility = expected gain - cost of changing bike(no of rounds in the void * energy level drain)
-	// // no of rounds in the void = 1 + (distance to lootbox / speed of bike)
+	if avgSocialCapital > ChangeBikeSocialCapitalThreshold {
+		// Pedal if members of the bike have high social capital.
+		return objects.Pedal
+	} else {
+		// Otherwise, change bikes.
+		return objects.ChangeBike
+	}
 }
 
 func (a *AgentTwo) DecideForce(direction uuid.UUID) {

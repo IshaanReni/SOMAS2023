@@ -29,3 +29,8 @@ const (
 const (
 	forgivenessFactor = 0.5 // Factor used in trustworthiness update calculations
 )
+
+// Constants related to decisions.
+const (
+	ChangeBikeSocialCapitalThreshold = 0.5 // Threshold for deciding whether to change bike or not
+)
