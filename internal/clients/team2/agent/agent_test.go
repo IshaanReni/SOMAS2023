@@ -17,18 +17,16 @@ func TestNewBaseTeam2Biker(t *testing.T) {
 	assert.Equal(t, 1.0, agent.energyLevel)
 }
 
-func TestCalculateSocialCapital(t *testing.T) {
+func TestClippingSocialCapital(t *testing.T) {
 	agent := NewBaseTeam2Biker(uuid.New())
 	testAgentID := uuid.New()
 
 	// Set up predefined values for trust, institution, and network
-	agent.Reputation[testAgentID] = 0.8
-	agent.Institution[testAgentID] = 0.3
-	agent.Network[testAgentID] = 0.5
+	agent.SocialCapitalModule.Reputation[testAgentID] = agent.SocialCapitalModule.ClipValues(1.5)
+	agent.SocialCapitalModule.Institution[testAgentID] = agent.SocialCapitalModule.ClipValues(-0.3)
 
-	// agent.CalculateSocialCapital()
-
-	assert.Equal(t, 1.0, agent.SocialCapital[testAgentID]) // 2 due to min/max scaling.
+	assert.Equal(t, 1.0, agent.SocialCapitalModule.Reputation[testAgentID])
+	assert.Equal(t, 0.0, agent.SocialCapitalModule.Institution[testAgentID])
 }
 
 func TestForcesToVectorConversion(t *testing.T) {
