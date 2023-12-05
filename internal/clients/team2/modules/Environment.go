@@ -92,7 +92,8 @@ func (e *EnvironmentModule) GetHighestGainLootbox() uuid.UUID {
 	bestGain := float64(0)
 	bestLoot := uuid.Nil
 	for _, lootboxId := range e.GetLootBoxes() {
-		gain := e.GetDistanceToLootbox(lootboxId.GetID()) / lootboxId.GetTotalResources()
+
+		gain := lootboxId.GetTotalResources() / e.GetDistanceToLootbox(lootboxId.GetID())
 		if gain > bestGain {
 			bestGain = gain
 			bestLoot = lootboxId.GetID()
