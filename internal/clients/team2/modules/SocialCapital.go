@@ -7,7 +7,7 @@ import (
 )
 
 type SocialCapital struct {
-	forgivenessCounter int32
+	forgivenessCounter map[uuid.UUID]int
 	SocialCapital      map[uuid.UUID]float64
 	Reputation         map[uuid.UUID]float64
 	Institution        map[uuid.UUID]float64
@@ -69,16 +69,21 @@ func (sc *SocialCapital) UpdateSocialNetwork(agentId uuid.UUID, eventValue float
 // Must be called once every round.
 func (sc *SocialCapital) UpdateSocialCapital(agentID uuid.UUID) float64 {
 
+	// Add to Forgiveness Counters.
+	if _, ok := sc.forgivenessCounter[agentID]; !ok {
+		sc.forgivenessCounter[agentID] = 0.0
+	}
+
 	// Update Forgiveness Counter.
 	newSocialCapital := ReputationWeight*sc.Reputation[agentID] + InstitutionWeight*sc.Institution[agentID] + NetworkWeight*sc.SocialNetwork[agentID]
 
 	if sc.SocialCapital[agentID] < newSocialCapital {
-		sc.forgivenessCounter = 0
+		sc.forgivenessCounter[agentID] = 0
 	}
 
-	if sc.SocialCapital[agentID] > newSocialCapital && sc.forgivenessCounter <= 3 {
+	if sc.SocialCapital[agentID] > newSocialCapital && sc.forgivenessCounter[agentID] <= 3 {
 		// Forgive if forgiveness counter is less than 3 and new social capital is less.
-		sc.forgivenessCounter++
+		sc.forgivenessCounter[agentID]++
 		sc.SocialCapital[agentID] = newSocialCapital + forgivenessFactor*(sc.SocialCapital[agentID]-newSocialCapital)
 	} else {
 		sc.SocialCapital[agentID] = newSocialCapital
@@ -88,7 +93,7 @@ func (sc *SocialCapital) UpdateSocialCapital(agentID uuid.UUID) float64 {
 
 func NewSocialCapital() *SocialCapital {
 	return &SocialCapital{
-		forgivenessCounter: 0,
+		forgivenessCounter: make(map[uuid.UUID]int),
 		SocialCapital:      make(map[uuid.UUID]float64),
 		Reputation:         make(map[uuid.UUID]float64),
 		Institution:        make(map[uuid.UUID]float64),
