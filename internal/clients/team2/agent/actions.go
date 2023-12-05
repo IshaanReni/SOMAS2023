@@ -3,6 +3,8 @@ package agent
 import (
 	"SOMAS2023/internal/clients/team2/modules"
 	"SOMAS2023/internal/common/objects"
+	"SOMAS2023/internal/common/utils"
+	"math/rand"
 
 	"github.com/google/uuid"
 )
@@ -68,24 +70,27 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 }
 
 func (a *AgentTwo) DecideForce(direction uuid.UUID) {
-	// TODO: Use SC in decide forces.
-	// if a.Modules.Environment.IsAudiNear() {
-	// 	// Move in opposite direction to Audi.
-	// 	bikePos, audiPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetAudi().GetPosition()
+	if a.Modules.Environment.IsAudiNear() {
+		// Move in opposite direction to Audi in full force
+		bikePos, audiPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetAudi().GetPosition()
+		force := a.Modules.Utils.GetSteeringForcesTowardsTargetWithOffset(utils.BikerMaxForce, -180.0, bikePos, audiPos)
+		a.SetForces(force)
+		return
+	}
+	// Use the average social capital to decide whether to pedal in the voted direciton or not
+	probabilityOfConformity := a.Modules.SocialCapital.GetAverage(a.Modules.SocialCapital.SocialCapital)
 
-	// 	deltaX := -audiPos.X + bikePos.X
-	// 	deltaY := -audiPos.Y + bikePos.Y
-	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.Modules.Environment.GetBikeOrientation()
+	randomNumber := rand.Float64()
+	agentPosition := a.GetLocation()
+	if randomNumber < probabilityOfConformity {
+		// Pedal in the voted direction
+		lootboxID := a.EnvironmentState.VotedDirection
+		lootboxPosition := a.EnvironmentState.GameState.GetLootBoxes()[lootboxID].GetPosition()
+		force := a.Modules.Utils.GetForcesToTarget(agentPosition, lootboxPosition)
+		a.SetForces(force)
+		return
+	}
 
-	// 	forces := utils.Forces{
-	// 		Pedal:   utils.BikerMaxForce,
-	// 		Brake:   0.0,
-	// 		Turning: utils.TurningDecision{SteerBike: true, SteeringForce: steerA},
-	// 	}
-	// 	a.SetForces(forces)
-	// } else {
-	// 	// Move towards lootbox with highest gain.
-	// 	// TODO: Use SC in decision.
 	// 	lootbox := a.Modules.Environment.GetHighestGainLootbox()
 
 	// 	bikePos, lootboxPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetLootboxPos(lootbox)

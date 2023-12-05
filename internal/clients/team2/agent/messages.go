@@ -40,9 +40,11 @@ func (a *AgentTwo) HandleKickOffMessage(msg obj.KickOffAgentMessage) {
 
 func (a *AgentTwo) HandleForcesMessage(msg obj.ForcesMessage) {
 	agentId := msg.AgentId
+	agentPosition := a.GetLocation()
 	optimalLootbox := a.EnvironmentState.VotedDirection
-	optimalForces := a.GetVotedLootboxForces(optimalLootbox)
-	eventValue := ProjectForce(optimalForces, msg.AgentForces)
+	lootboxPosition := a.EnvironmentState.GameState.GetLootBoxes()[optimalLootbox].GetPosition()
+	optimalForces := a.Modules.Utils.GetForcesToTarget(agentPosition, lootboxPosition)
+	eventValue := a.Modules.Utils.ProjectForce(optimalForces, msg.AgentForces)
 
 	a.Modules.SocialCapital.UpdateSocialNetwork(agentId, SocialEventValue_AgentSentMsg, SocialEventWeight_AgentSentMsg)
 	a.Modules.SocialCapital.UpdateInstitution(agentId, InstitutionEventWeight_Adhereance, eventValue)

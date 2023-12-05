@@ -16,10 +16,19 @@ type AgentModules struct {
 	Environment   *modules.EnvironmentModule
 	SocialCapital *modules.SocialCapital
 	Decision      *modules.DecisionModule
+	Utils         *modules.UtilsModule
 }
 
+// Honestly Have no idea what this is for ????
+type Action struct {
+	AgentID         uuid.UUID
+	Action          string
+	Force           utils.Forces
+	GameLoop        int32
+	lootBoxlocation modules.ForceVector //utils.Coordinates
+}
 type AgentState struct {
-	Actions      []Action
+	Actions      []Action // Why is this Needed???
 	SoughtColour utils.Colour
 	OnBike       bool
 	EnergyLevel  float64
@@ -52,6 +61,7 @@ func NewBaseTeam2Biker(agentId uuid.UUID) *AgentTwo {
 			Environment:   modules.GetEnvironmentModule(baseBiker.GetID(), baseBiker.GetGameState(), baseBiker.GetMegaBikeId()),
 			SocialCapital: modules.NewSocialCapital(),
 			Decision:      modules.NewDecisionModule(),
+			Utils:         modules.NewUtilsModule(),
 		},
 		State: AgentState{
 			Actions:      []Action{},
