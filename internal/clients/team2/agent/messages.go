@@ -11,7 +11,7 @@ func (a *AgentTwo) CreateForcesMessage() obj.ForcesMessage {
 	return obj.ForcesMessage{
 		BaseMessage: messaging.CreateMessage[obj.IBaseBiker](a, a.GetFellowBikers()),
 		AgentId:     a.GetID(),
-		AgentForces: a.State.Forces,
+		AgentForces: a.BaseBiker.GetForces(),
 	}
 }
 
@@ -41,8 +41,8 @@ func (a *AgentTwo) HandleKickOffMessage(msg obj.KickOffAgentMessage) {
 func (a *AgentTwo) HandleForcesMessage(msg obj.ForcesMessage) {
 	agentId := msg.AgentId
 	agentPosition := a.GetLocation()
-	optimalLootbox := a.EnvironmentState.VotedDirection
-	lootboxPosition := a.EnvironmentState.GameState.GetLootBoxes()[optimalLootbox].GetPosition()
+	optimalLootbox := a.Modules.VotedDirection
+	lootboxPosition := a.Modules.Environment.GetLootboxPos(optimalLootbox)
 	optimalForces := a.Modules.Utils.GetForcesToTarget(agentPosition, lootboxPosition)
 	eventValue := a.Modules.Utils.ProjectForce(optimalForces, msg.AgentForces)
 

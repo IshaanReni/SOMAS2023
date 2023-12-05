@@ -13,8 +13,8 @@ func TestNewBaseTeam2Biker(t *testing.T) {
 	agentId := uuid.New()
 	agent := NewBaseTeam2Biker(agentId)
 	assert.NotNil(t, agent)
-	assert.Equal(t, 0, agent.State.Points)
-	assert.Equal(t, 1.0, agent.State.EnergyLevel)
+	assert.Equal(t, 0, agent.BaseBiker.GetPoints())
+	assert.Equal(t, 1.0, agent.BaseBiker.GetEnergyLevel())
 }
 
 func TestClippingSocialCapital(t *testing.T) {

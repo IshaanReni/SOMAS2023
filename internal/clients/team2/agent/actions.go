@@ -70,6 +70,9 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 }
 
 func (a *AgentTwo) DecideForce(direction uuid.UUID) {
+
+	a.Modules.VotedDirection = direction
+
 	if a.Modules.Environment.IsAudiNear() {
 		// Move in opposite direction to Audi in full force
 		bikePos, audiPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetAudi().GetPosition()
@@ -79,20 +82,18 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 	}
 	// Use the average social capital to decide whether to pedal in the voted direciton or not
 	probabilityOfConformity := a.Modules.SocialCapital.GetAverage(a.Modules.SocialCapital.SocialCapital)
-
 	randomNumber := rand.Float64()
 	agentPosition := a.GetLocation()
-	lootboxID := a.EnvironmentState.VotedDirection
+	lootboxID := direction
 	if randomNumber > probabilityOfConformity {
-		// Pedal in the own direction
 		lootboxID = a.Modules.Environment.GetHighestGainLootbox()
 	}
-	lootboxPosition := a.EnvironmentState.GameState.GetLootBoxes()[lootboxID].GetPosition()
+	lootboxPosition := a.Modules.Environment.GetLootboxPos(lootboxID)
 	force := a.Modules.Utils.GetForcesToTarget(agentPosition, lootboxPosition)
 	a.SetForces(force)
 }
 
 func (a *AgentTwo) UpdateGameState(gameState objects.IGameState) {
-	a.EnvironmentState.GameState = gameState
+	a.BaseBiker.UpdateGameState(gameState)
 	a.Modules.Environment.SetGameState(gameState)
 }
