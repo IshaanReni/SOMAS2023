@@ -32,7 +32,7 @@ func NewBaseTeam2Biker(agentId uuid.UUID) *AgentTwo {
 	return &AgentTwo{
 		BaseBiker: baseBiker,
 		Modules: AgentModules{
-			Environment:    modules.GetEnvironmentModule(baseBiker.GetID(), baseBiker.GetGameState(), baseBiker.GetMegaBikeId()),
+			Environment:    modules.GetEnvironmentModule(baseBiker.GetID(), baseBiker.GetGameState(), baseBiker.GetBike()),
 			SocialCapital:  modules.NewSocialCapital(),
 			Decision:       modules.NewDecisionModule(),
 			Utils:          modules.NewUtilsModule(),
