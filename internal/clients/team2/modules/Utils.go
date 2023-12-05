@@ -47,9 +47,9 @@ func (um *UtilsModule) RuleAdherenceValue(agentID uuid.UUID, expectedAction, act
 	return actualVec.CosineSimilarity(*expectVec) * actualAction.Pedal
 }
 
-// GetSteeringForcesTowardsTargetWithOffset calculates the forces to be applied on an agent to steer towards a target position,
+// GetForcesToTargetWithDirectionOffset calculates the forces to be applied on an agent to steer towards a target position,
 // taking into account a specified degree of angular offset.
-func (um *UtilsModule) GetSteeringForcesTowardsTargetWithOffset(force, degree float64, currPos, targetPos utils.Coordinates) utils.Forces {
+func (um *UtilsModule) GetForcesToTargetWithDirectionOffset(force, degree float64, currPos, targetPos utils.Coordinates) utils.Forces {
 	deltaX := targetPos.X - currPos.X
 	deltaY := targetPos.Y - currPos.Y
 	angle := math.Atan2(deltaY, deltaX)

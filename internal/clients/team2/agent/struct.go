@@ -27,6 +27,7 @@ type Action struct {
 	GameLoop        int32
 	lootBoxlocation modules.ForceVector //utils.Coordinates
 }
+
 type AgentState struct {
 	Actions      []Action // Why is this Needed???
 	SoughtColour utils.Colour

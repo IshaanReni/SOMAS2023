@@ -73,7 +73,7 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 	if a.Modules.Environment.IsAudiNear() {
 		// Move in opposite direction to Audi in full force
 		bikePos, audiPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetAudi().GetPosition()
-		force := a.Modules.Utils.GetSteeringForcesTowardsTargetWithOffset(utils.BikerMaxForce, -180.0, bikePos, audiPos)
+		force := a.Modules.Utils.GetForcesToTargetWithDirectionOffset(utils.BikerMaxForce, -180.0, bikePos, audiPos)
 		a.SetForces(force)
 		return
 	}
@@ -82,29 +82,14 @@ func (a *AgentTwo) DecideForce(direction uuid.UUID) {
 
 	randomNumber := rand.Float64()
 	agentPosition := a.GetLocation()
-	if randomNumber < probabilityOfConformity {
-		// Pedal in the voted direction
-		lootboxID := a.EnvironmentState.VotedDirection
-		lootboxPosition := a.EnvironmentState.GameState.GetLootBoxes()[lootboxID].GetPosition()
-		force := a.Modules.Utils.GetForcesToTarget(agentPosition, lootboxPosition)
-		a.SetForces(force)
-		return
+	lootboxID := a.EnvironmentState.VotedDirection
+	if randomNumber > probabilityOfConformity {
+		// Pedal in the own direction
+		lootboxID = a.Modules.Environment.GetHighestGainLootbox()
 	}
-
-	// 	lootbox := a.Modules.Environment.GetHighestGainLootbox()
-
-	// 	bikePos, lootboxPos := a.Modules.Environment.GetBike().GetPosition(), a.Modules.Environment.GetLootboxPos(lootbox)
-	// 	deltaX := lootboxPos.X - bikePos.X
-	// 	deltaY := lootboxPos.Y - bikePos.Y
-	// 	steerA := math.Atan2(deltaY, deltaX)/math.Pi - a.Modules.Environment.GetBikeOrientation()
-
-	// 	forces := utils.Forces{
-	// 		Pedal:   utils.BikerMaxForce,
-	// 		Brake:   0.0,
-	// 		Turning: utils.TurningDecision{SteerBike: true, SteeringForce: steerA},
-	// 	}
-	// 	a.SetForces(forces)
-	// }
+	lootboxPosition := a.EnvironmentState.GameState.GetLootBoxes()[lootboxID].GetPosition()
+	force := a.Modules.Utils.GetForcesToTarget(agentPosition, lootboxPosition)
+	a.SetForces(force)
 }
 
 func (a *AgentTwo) UpdateGameState(gameState objects.IGameState) {
