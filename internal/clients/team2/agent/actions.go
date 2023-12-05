@@ -44,7 +44,7 @@ func (a *AgentTwo) DecideJoining(pendingAgents []uuid.UUID) map[uuid.UUID]bool {
 	return a.BaseBiker.DecideJoining(pendingAgents)
 }
 
-func (a *AgentTwo) ProposeDirection() utils.Governance {
+func (a *AgentTwo) ProposeDirection() uuid.UUID {
 	// TODO: Propose direction of lootbox with highest gain of our color.
 	return a.BaseBiker.ProposeDirection()
 }
