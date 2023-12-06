@@ -37,6 +37,23 @@ func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
 	return result
 }
 
+func (a *AgentTwo) DecideDictatorAllocation() voting.IdVoteMap {
+	socialCapital := a.Modules.SocialCapital.SocialCapital
+
+	// Calculate the total social capital
+	totalSocialCapital := 0.0
+	for _, sc := range socialCapital {
+		totalSocialCapital += sc
+	}
+
+	// Distribute the allocation based on each agent's share of the total social capital
+	result := make(voting.IdVoteMap)
+	for agentID, sc := range socialCapital {
+		result[agentID] = sc / totalSocialCapital
+	}
+	return result
+}
+
 func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
 	// TODO: Vote for the agents with a Social Capital lower than a threshold.
 	return a.BaseBiker.VoteForKickout()
