@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"SOMAS2023/internal/clients/team2/agent"
+	// "SOMAS2023/internal/clients/team2/agent"
 	"SOMAS2023/internal/clients/team2/modules"
 	"SOMAS2023/internal/common/objects"
 	"SOMAS2023/internal/common/utils"
@@ -52,7 +52,7 @@ func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
 
 func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
 	VoteMap := make(map[uuid.UUID]int)
-	kickoutThreshold := agent.ChangeBikeSocialCapitalThreshold
+	kickoutThreshold := ChangeBikeSocialCapitalThreshold
 	agentTwoID := a.GetID()
 
 	// TODO: Vote for the agents with a Social Capital lower than a threshold.
