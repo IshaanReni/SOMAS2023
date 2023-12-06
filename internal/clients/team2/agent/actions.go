@@ -25,14 +25,9 @@ func (a *AgentTwo) DecideKickOut() []uuid.UUID {
 	// Only called when the agent is the dictator.
 	// We kick out the agent with the lowest social capital on the bike.
 	// GetBikerWithMinSocialCapital returns only one agent, if more agents with min SC, it randomly chooses one.
-	agents := a.GetFellowBikers()
 	kickOut_agents := make([]uuid.UUID, 0)
 	agentId, _ := a.Modules.Environment.GetBikerWithMinSocialCapital(a.Modules.SocialCapital)
-	for _, agent := range agents {
-		if agent.GetID() == agentId {
-			kickOut_agents = append(kickOut_agents, agent.GetID())
-		}
-	}
+	kickOut_agents = append(kickOut_agents, agentId)
 	return kickOut_agents
 }
 
