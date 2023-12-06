@@ -16,22 +16,20 @@ func (a *AgentTwo) DecideWeights(action utils.Action) map[uuid.UUID]float64 {
 }
 
 func (a *AgentTwo) VoteLeader() voting.IdVoteMap {
-	// We vote 0.5 for ourselves if the agent with the highest SC Agent(that we've met so far) is on our bike. Otherwise, we vote 1 for ourselves.
+	// We vote 0.5 for ourselves if the agent with the highest SC Agent(that we've met so far) on our bike. Otherwise, we vote 1 for ourselves.
 	votes := make(voting.IdVoteMap)
 	fellowBikers := a.GetFellowBikers()
-	agentId, _ := a.Modules.SocialCapital.GetMaximumSocialCapital()
-	highestIsOnBike := false
-	for _, fellowBiker := range fellowBikers {
-		if fellowBiker.GetID() == agentId {
-			votes[fellowBiker.GetID()] = 0.5
-			highestIsOnBike = true
-		} else {
-			votes[fellowBiker.GetID()] = 0.0
+	if len(a.GetFellowBikers()) > 0 {
+		agentId, _ := a.Modules.Environment.GetBikerWithMaxSocialCapital(a.Modules.SocialCapital)
+		for _, fellowBiker := range fellowBikers {
+			if fellowBiker.GetID() == agentId {
+				votes[fellowBiker.GetID()] = 0.5
+			} else if fellowBiker.GetID() == a.GetID() {
+				votes[a.GetID()] = 0.5
+			} else {
+				votes[fellowBiker.GetID()] = 0.0
+			}
 		}
-	}
-
-	if highestIsOnBike {
-		votes[a.GetID()] = 0.5
 	} else {
 		votes[a.GetID()] = 1.0
 	}
