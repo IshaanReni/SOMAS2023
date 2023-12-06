@@ -35,7 +35,7 @@ func (sc *SocialCapital) GetMinimumSocialCapital() (uuid.UUID, float64) {
 }
 
 func (sc *SocialCapital) GetMaximumSocialCapital() (uuid.UUID, float64) {
-	max := math.MaxFloat64
+	max := 0.0
 	maxAgentId := uuid.Nil
 	for agentId, value := range sc.SocialCapital {
 		if sc.SocialCapital[agentId] > max {
