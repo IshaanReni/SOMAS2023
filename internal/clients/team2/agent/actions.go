@@ -190,7 +190,7 @@ func (a *AgentTwo) ChangeBike() uuid.UUID {
 func (a *AgentTwo) DecideAction() objects.BikerAction {
 	avgSocialCapital := a.Modules.SocialCapital.GetAverage(a.Modules.SocialCapital.SocialCapital)
 
-	if avgSocialCapital > ChangeBikeSocialCapitalThreshold {
+	if avgSocialCapital >= ChangeBikeSocialCapitalThreshold {
 		// Pedal if members of the bike have high social capital.
 		return objects.Pedal
 	} else {
@@ -200,6 +200,9 @@ func (a *AgentTwo) DecideAction() objects.BikerAction {
 }
 
 func (a *AgentTwo) DecideForce(direction uuid.UUID) {
+	if direction == uuid.Nil {
+
+	}
 
 	a.Modules.VotedDirection = direction
 

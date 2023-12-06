@@ -96,6 +96,8 @@ func (s *Server) AddAgentToBike(agent objects.IBaseBiker) {
 }
 
 func (s *Server) RemoveAgentFromBike(agent objects.IBaseBiker) {
+	fmt.Printf("Agent %s removed from bike %s\n", agent.GetID(), agent.GetBike())
+
 	bike := s.megaBikes[agent.GetBike()]
 	bike.RemoveAgent(agent.GetID())
 	agent.ToggleOnBike()

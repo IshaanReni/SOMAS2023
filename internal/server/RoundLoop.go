@@ -6,7 +6,6 @@ import (
 	"SOMAS2023/internal/common/utils"
 	"SOMAS2023/internal/common/voting"
 	"fmt"
-
 	"github.com/google/uuid"
 )
 
@@ -80,6 +79,7 @@ func (s *Server) HandleKickoutProcess() []uuid.UUID {
 		agentsVotes := make([]uuid.UUID, 0)
 
 		// the kickout process only happens democratically in level 0 and level 1
+		bike.SetGovernance(utils.Democracy)
 		switch bike.GetGovernance() {
 		case utils.Democracy:
 			// make map of weights of 1 for all agents on bike
@@ -109,7 +109,7 @@ func (s *Server) HandleKickoutProcess() []uuid.UUID {
 		leaderKickedOut := false
 		allKicked = append(allKicked, agentsVotes...)
 		for _, agentID := range agentsVotes {
-			fmt.Println("kicking out someone")
+			fmt.Printf("Agent %s got kicked from bike %s\n", agentID, bike.GetID())
 			s.RemoveAgentFromBike(s.GetAgentMap()[agentID])
 			// if the leader was kicked out vote for a new one
 			if agentID == bike.GetRuler() {
@@ -301,10 +301,10 @@ func (s *Server) GetWinningDirection(finalVotes map[uuid.UUID]voting.LootboxVote
 
 func (s *Server) AudiCollisionCheck() {
 	// Check collision for audi with any megaBike
-	for bikeid, megabike := range s.GetMegaBikes() {
+	for _, megabike := range s.GetMegaBikes() {
 		if s.audi.CheckForCollision(megabike) {
 			// Collision detected
-			fmt.Printf("Collision detected between Audi and MegaBike %s \n", bikeid)
+			//fmt.Printf("Collision detected between Audi and MegaBike %s \n", bikeid)
 			for _, agentToDelete := range megabike.GetAgents() {
 				fmt.Printf("Agent %s killed by Audi \n", agentToDelete.GetID())
 				s.RemoveAgent(agentToDelete)
