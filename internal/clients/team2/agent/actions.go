@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"SOMAS2023/internal/clients/team2/agent"
 	"SOMAS2023/internal/clients/team2/modules"
 	"SOMAS2023/internal/common/objects"
 	"SOMAS2023/internal/common/utils"
@@ -23,7 +24,23 @@ func (a *AgentTwo) VoteLeader() voting.IdVoteMap {
 
 func (a *AgentTwo) DecideGovernance() utils.Governance {
 	// TODO: All possibilities except dictatorship.
-	return a.BaseBiker.DecideGovernance()
+	// Need to decide weights for each type of Governance
+	// Can add an invalid weighting so that it is not 50/50
+	democracyWeight := 0.5
+	leadershipWeight := 0.5
+	dictatorshipWeight := 0.0
+
+	randomNumber := rand.Float64()
+	if randomNumber < democracyWeight {
+		return utils.Democracy
+	} else if randomNumber < leadershipWeight {
+		return utils.Leadership
+	} else if randomNumber < dictatorshipWeight {
+		return utils.Dictatorship
+	} else {
+		return utils.Invalid
+	}
+
 }
 
 func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
@@ -34,8 +51,22 @@ func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
 }
 
 func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
+	VoteMap := make(map[uuid.UUID]int)
+	kickoutThreshold := agent.ChangeBikeSocialCapitalThreshold
+	agentTwoID := a.GetID()
+
 	// TODO: Vote for the agents with a Social Capital lower than a threshold.
-	return a.BaseBiker.VoteForKickout()
+	for _, agent := range a.GetFellowBikers() {
+		if agent.GetID() != agentTwoID {
+			if a.Modules.SocialCapital.SocialCapital[agent.GetID()] < kickoutThreshold {
+				VoteMap[agent.GetID()] = 1
+			} else {
+				VoteMap[agent.GetID()] = 0
+			}
+		}
+	}
+
+	return VoteMap
 }
 
 func (a *AgentTwo) DecideJoining(pendingAgents []uuid.UUID) map[uuid.UUID]bool {
