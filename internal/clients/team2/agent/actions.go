@@ -57,11 +57,7 @@ func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
 		if agent.GetID() != agentTwoID {
 			_, exists := a.Modules.SocialCapital.SocialCapital[agent.GetID()]
 
-			if !exists {
-				a.Modules.SocialCapital.SocialCapital[agent.GetID()] = a.Modules.SocialCapital.GetAverage(a.Modules.SocialCapital.SocialCapital)
-			}
-
-			if a.Modules.SocialCapital.SocialCapital[agent.GetID()] < kickoutThreshold {
+			if a.Modules.SocialCapital.SocialCapital[agent.GetID()] < kickoutThreshold && exists {
 				VoteMap[agent.GetID()] = 1
 			} else {
 				VoteMap[agent.GetID()] = 0
