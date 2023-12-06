@@ -141,6 +141,21 @@ func (e *EnvironmentModule) GetBikerWithMaxSocialCapital(sc *SocialCapital) (uui
 	return maxSCAgentId, maxSC
 }
 
+func (e *EnvironmentModule) GetBikerWithMinSocialCapital(sc *SocialCapital) (uuid.UUID, float64) {
+	fellowBikers := e.GetBikerAgents()
+	minSCAgentId := uuid.Nil
+	minSC := 0.0
+	for _, fellowBiker := range fellowBikers {
+		if sc, ok := sc.SocialCapital[e.AgentId]; ok {
+			if sc < minSC {
+				minSCAgentId = fellowBiker.GetID()
+				minSC = sc
+			}
+		}
+	}
+	return minSCAgentId, minSC
+}
+
 func (e *EnvironmentModule) GetBikeWithMaximumSocialCapital(sc *SocialCapital) uuid.UUID {
 	maxAverage := float64(0)
 	maxBikeId := uuid.Nil

@@ -16,7 +16,7 @@ func (a *AgentTwo) DecideWeights(action utils.Action) map[uuid.UUID]float64 {
 }
 
 func (a *AgentTwo) VoteLeader() voting.IdVoteMap {
-	// We vote 0.5 for ourselves if the agent with the highest SC Agent(that we've met so far) on our bike. Otherwise, we vote 1 for ourselves.
+	// We vote 0.5 for ourselves if the agent with the highest SC Agent(that we've met so far) on our bike. If we're alone on a bike, we vote 1 for ourselves.
 	votes := make(voting.IdVoteMap)
 	fellowBikers := a.GetFellowBikers()
 	if len(a.GetFellowBikers()) > 0 {
