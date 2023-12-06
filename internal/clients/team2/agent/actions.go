@@ -55,9 +55,23 @@ func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
 }
 
 func (a *AgentTwo) DecideJoining(pendingAgents []uuid.UUID) map[uuid.UUID]bool {
-	// TODO: Accept all agents we don't know about or are higher in social capital.
+	// Accept all agents we don't know about or are higher in social capital.
 	// If we know about them and they have a lower social capital, reject them.
-	return a.BaseBiker.DecideJoining(pendingAgents)
+
+	decision := make(map[uuid.UUID]bool)
+	for _, agent := range pendingAgents {
+		// If we know about them and they have a higher social capital than threshold, accept them.
+		if _, ok := a.Modules.SocialCapital.SocialCapital[agent]; ok {
+			if a.Modules.SocialCapital.SocialCapital[agent] > modules.AcceptThreshold {
+				decision[agent] = true
+			} else {
+				decision[agent] = false
+			}
+		} else {
+			decision[agent] = true
+		}
+	}
+	return decision
 }
 
 func (a *AgentTwo) ProposeDirection() uuid.UUID {
