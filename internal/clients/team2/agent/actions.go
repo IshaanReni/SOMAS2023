@@ -23,7 +23,7 @@ func (a *AgentTwo) VoteLeader() voting.IdVoteMap {
 }
 
 func (a *AgentTwo) DecideGovernance() utils.Governance {
-	// TODO: All possibilities except dictatorship.
+	// All possibilities except dictatorship.
 	// Need to decide weights for each type of Governance
 	// Can add an invalid weighting so that it is not 50/50
 	democracyWeight := 0.5
@@ -55,7 +55,7 @@ func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
 	kickoutThreshold := ChangeBikeSocialCapitalThreshold
 	agentTwoID := a.GetID()
 
-	// TODO: Vote for the agents with a Social Capital lower than a threshold.
+	// check all bikers on the bike but ignore ourselves
 	for _, agent := range a.GetFellowBikers() {
 		if agent.GetID() != agentTwoID {
 			if a.Modules.SocialCapital.SocialCapital[agent.GetID()] < kickoutThreshold {
