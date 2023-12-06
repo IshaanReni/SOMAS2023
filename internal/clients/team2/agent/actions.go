@@ -16,6 +16,11 @@ func (a *AgentTwo) DecideWeights(action utils.Action) map[uuid.UUID]float64 {
 	weights := make(map[uuid.UUID]float64)
 	agents := a.GetFellowBikers()
 	for _, agent := range agents {
+		// if agent Id is not in the a.Modules.SocialCapital.SocialCapital map, set the weight to 0.5 (neither trust or distrust)
+		if _, ok := a.Modules.SocialCapital.SocialCapital[agent.GetID()]; !ok {
+			// add agent to the map
+			a.Modules.SocialCapital.SocialCapital[agent.GetID()] = 0.5
+		}
 		weights[agent.GetID()] = a.Modules.SocialCapital.SocialCapital[agent.GetID()]
 	}
 	return weights
