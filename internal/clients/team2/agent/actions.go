@@ -26,9 +26,6 @@ func (a *AgentTwo) DecideGovernance() utils.Governance {
 	// All possibilities except dictatorship.
 	// Need to decide weights for each type of Governance
 	// Can add an invalid weighting so that it is not 50/50
-	democracyWeight := 0.5
-	leadershipWeight := 0.5
-	dictatorshipWeight := 0.0
 
 	randomNumber := rand.Float64()
 	if randomNumber < democracyWeight {
@@ -58,11 +55,18 @@ func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
 	// check all bikers on the bike but ignore ourselves
 	for _, agent := range a.GetFellowBikers() {
 		if agent.GetID() != agentTwoID {
+			_, exists := a.Modules.SocialCapital.SocialCapital[agent.GetID()]
+
+			if !exists {
+				a.Modules.SocialCapital.SocialCapital[agent.GetID()] = a.Modules.SocialCapital.GetAverage(a.Modules.SocialCapital.SocialCapital)
+			}
+
 			if a.Modules.SocialCapital.SocialCapital[agent.GetID()] < kickoutThreshold {
 				VoteMap[agent.GetID()] = 1
 			} else {
 				VoteMap[agent.GetID()] = 0
 			}
+
 		}
 	}
 
