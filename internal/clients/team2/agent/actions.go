@@ -10,6 +10,19 @@ import (
 	"github.com/google/uuid"
 )
 
+// We vote for ourselves and the agent with the highest social capital.
+func (a *AgentTwo) VoteDictator() voting.IdVoteMap {
+	votes := make(voting.IdVoteMap)
+
+	fellowAgentId, _ := a.Modules.Environment.GetBikerWithMaxSocialCapital(a.Modules.SocialCapital)
+	if fellowAgentId != uuid.Nil {
+		votes[fellowAgentId] = 1.0
+	}
+
+	votes[fellowAgentId] = 1.0
+	return votes
+}
+
 func (a *AgentTwo) DecideWeights(action utils.Action) map[uuid.UUID]float64 {
 	// TODO: All actions have equal weights. Weighting by AgentId based on social capital.
 	return a.BaseBiker.DecideWeights(action)

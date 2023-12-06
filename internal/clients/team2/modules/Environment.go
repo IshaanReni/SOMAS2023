@@ -126,6 +126,21 @@ func (e *EnvironmentModule) GetBikeOrientation() float64 {
 	return e.GetBikeById(e.BikeId).GetOrientation()
 }
 
+func (e *EnvironmentModule) GetBikerWithMaxSocialCapital(sc *SocialCapital) (uuid.UUID, float64) {
+	fellowBikers := e.GetBikerAgents()
+	maxSCAgentId := uuid.Nil
+	maxSC := 0.0
+	for _, fellowBiker := range fellowBikers {
+		if sc, ok := sc.SocialCapital[e.AgentId]; ok {
+			if sc > maxSC {
+				maxSCAgentId = fellowBiker.GetID()
+				maxSC = sc
+			}
+		}
+	}
+	return maxSCAgentId, maxSC
+}
+
 func (e *EnvironmentModule) GetBikeWithMaximumSocialCapital(sc *SocialCapital) uuid.UUID {
 	maxAverage := float64(0)
 	maxBikeId := uuid.Nil
