@@ -13,13 +13,26 @@ import (
 // We vote for ourselves and the agent with the highest social capital.
 func (a *AgentTwo) VoteDictator() voting.IdVoteMap {
 	votes := make(voting.IdVoteMap)
-
-	fellowAgentId, _ := a.Modules.Environment.GetBikerWithMaxSocialCapital(a.Modules.SocialCapital)
-	if fellowAgentId != uuid.Nil {
-		votes[fellowAgentId] = 1.0
+	agentId, _ := a.Modules.Environment.GetBikerWithMaxSocialCapital(a.Modules.SocialCapital)
+	if len(a.GetFellowBikers()) > 1 && agentId != a.GetID() {
+		fellowBikers := a.GetFellowBikers()
+		for _, fellowBiker := range fellowBikers {
+			if fellowBiker.GetID() == agentId || fellowBiker.GetID() == a.GetID() {
+				votes[fellowBiker.GetID()] = 0.5
+			} else {
+				votes[fellowBiker.GetID()] = 0.0
+			}
+		}
+	} else {
+		fellowBikers := a.GetFellowBikers()
+		for _, fellowBiker := range fellowBikers {
+			if fellowBiker.GetID() == a.GetID() {
+				votes[fellowBiker.GetID()] = 1.0
+			} else {
+				votes[fellowBiker.GetID()] = 0.0
+			}
+		}
 	}
-
-	votes[fellowAgentId] = 1.0
 	return votes
 }
 
