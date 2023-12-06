@@ -5,6 +5,7 @@ import (
 	"SOMAS2023/internal/common/objects"
 	"SOMAS2023/internal/common/utils"
 	"SOMAS2023/internal/common/voting"
+	"maps"
 	"math/rand"
 
 	"github.com/google/uuid"
@@ -27,18 +28,26 @@ func (a *AgentTwo) DecideGovernance() utils.Governance {
 }
 
 func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
-	result := make(voting.IdVoteMap)
-	// Each agent is given their social capital
-	for agentID, socialCapital := range a.Modules.SocialCapital.SocialCapital {
-		result[agentID] = socialCapital
+	socialCapital := maps.Clone(a.Modules.SocialCapital.SocialCapital)
+	// Iterate through agents in social capital
+	for id := range socialCapital {
+		// Iterate through fellow bikers
+		for _, biker := range a.GetFellowBikers() {
+			// If this agent is a fellow biker, move on
+			if biker.GetID() == id {
+				continue
+			}
+		}
+		// This agent is not a fellow biker - remove it from SC
+		delete(socialCapital, id)
 	}
 	// We give ourselves 1.0
-	result[a.GetID()] = 1.0
-	return result
+	socialCapital[a.GetID()] = 1.0
+	return socialCapital
 }
 
 func (a *AgentTwo) DecideDictatorAllocation() voting.IdVoteMap {
-	socialCapital := a.Modules.SocialCapital.SocialCapital
+	socialCapital := a.DecideAllocation()
 
 	// Calculate the total social capital
 	totalSocialCapital := 0.0
