@@ -27,10 +27,14 @@ func (a *AgentTwo) DecideGovernance() utils.Governance {
 }
 
 func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
-	// TODO: We simply pass in Social Capital values in the map.
-	// If a value does not exist in the map, we set it as the average social capital.
-	// We give ourselves the highest social capital which is 1.
-	return a.BaseBiker.DecideAllocation()
+	result := make(voting.IdVoteMap)
+	// Each agent is given their social capital
+	for agentID, socialCapital := range a.Modules.SocialCapital.SocialCapital {
+		result[agentID] = socialCapital
+	}
+	// We give ourselves 1.0
+	result[a.GetID()] = 1.0
+	return result
 }
 
 func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
