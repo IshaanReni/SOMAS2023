@@ -104,7 +104,8 @@ func CumulativeDist(voters map[uuid.UUID]IVoter, weights map[uuid.UUID]float64) 
 		normalizeFactor += vote
 	}
 	if normalizeFactor == 0.0 {
-		panic("all votes summed to zero")
+		return aggregateVotes
+		// panic("all votes summed to zero")
 	}
 	// normalising step for all voters involved
 	for agentId, vote := range aggregateVotes {

@@ -15,6 +15,22 @@ import (
 	"github.com/google/uuid"
 )
 
+func (a *AgentTwo) GetFellowBikers() []objects.IBaseBiker {
+	bikes := a.Modules.Environment.GameState.GetMegaBikes()
+	if _, ok := bikes[a.GetBike()]; !ok {
+		return []objects.IBaseBiker{}
+	}
+	bike := bikes[a.GetBike()]
+	fellowBikers := make([]objects.IBaseBiker, 0)
+	for _, biker := range bike.GetAgents() {
+		if biker.GetBikeStatus() {
+			fellowBikers = append(fellowBikers, biker)
+		}
+	}
+
+	return fellowBikers
+}
+
 // We vote for ourselves and the agent with the highest social capital.
 func (a *AgentTwo) VoteDictator() voting.IdVoteMap {
 	votes := make(voting.IdVoteMap)
@@ -42,25 +58,25 @@ func (a *AgentTwo) VoteDictator() voting.IdVoteMap {
 	return votes
 }
 
-// func (a *AgentTwo) DecideWeights(action utils.Action) map[uuid.UUID]float64 {
-// 	// All actions have equal weights. Weighting by AgentId based on social capital.
-// 	// We set the weight for an Agent to be equal to its Social Capital.
-// 	weights := make(map[uuid.UUID]float64)
-// 	agents := a.GetFellowBikers()
-// 	for _, agent := range agents {
-// 		if agent.GetEnergyLevel() <= 0 || !agent.GetBikeStatus() {
-// 			fmt.Println("Agent is dead or bike is broken")
-// 			panic("Agent is dead or bike is broken")
-// 		}
-// 		// if agent Id is not in the a.Modules.SocialCapital.SocialCapital map, set the weight to 0.5 (neither trust or distrust)
-// 		if _, ok := a.Modules.SocialCapital.SocialCapital[agent.GetID()]; !ok {
-// 			// add agent to the map
-// 			a.Modules.SocialCapital.SocialCapital[agent.GetID()] = 0.5
-// 		}
-// 		weights[agent.GetID()] = a.Modules.SocialCapital.SocialCapital[agent.GetID()]
-// 	}
-// 	return weights
-// }
+func (a *AgentTwo) DecideWeights(action utils.Action) map[uuid.UUID]float64 {
+	// All actions have equal weights. Weighting by AgentId based on social capital.
+	// We set the weight for an Agent to be equal to its Social Capital.
+	weights := make(map[uuid.UUID]float64)
+	agents := a.GetFellowBikers()
+	for _, agent := range agents {
+		if agent.GetEnergyLevel() <= 0 || !agent.GetBikeStatus() {
+			fmt.Println("Agent is dead or is not on a bike")
+			continue
+		}
+		// if agent Id is not in the a.Modules.SocialCapital.SocialCapital map, set the weight to 0.5 (neither trust or distrust)
+		if _, ok := a.Modules.SocialCapital.SocialCapital[agent.GetID()]; !ok {
+			// add agent to the map
+			a.Modules.SocialCapital.SocialCapital[agent.GetID()] = 0.5
+		}
+		weights[agent.GetID()] = a.Modules.SocialCapital.SocialCapital[agent.GetID()]
+	}
+	return weights
+}
 
 func (a *AgentTwo) DecideKickOut() []uuid.UUID {
 	// Only called when the agent is the dictator.
