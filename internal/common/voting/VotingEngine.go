@@ -3,7 +3,6 @@ package voting
 import (
 	"SOMAS2023/internal/common/utils"
 	"errors"
-	"math"
 	"sort"
 
 	"github.com/google/uuid"

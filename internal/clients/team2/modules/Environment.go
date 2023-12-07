@@ -55,8 +55,15 @@ func (e *EnvironmentModule) GetLootBoxesByColor(color utils.Colour) map[uuid.UUI
 	return lootboxesFiltered
 }
 
+func (e *EnvironmentModule) GetRandomLootbox() uuid.UUID {
+	for _, lootbox := range e.GetLootBoxes() {
+		return lootbox.GetID()
+	}
+	panic("No lootboxes found.")
+}
+
 func (e *EnvironmentModule) GetNearestLootbox(agentId uuid.UUID) uuid.UUID {
-	nearestLootbox := uuid.Nil
+	nearestLootbox := e.GetRandomLootbox()
 	minDist := math.MaxFloat64
 	for _, lootbox := range e.GetLootBoxes() {
 		if e.IsLootboxNearAudi(lootbox.GetID()) {
@@ -74,7 +81,7 @@ func (e *EnvironmentModule) GetNearestLootbox(agentId uuid.UUID) uuid.UUID {
 }
 
 func (e *EnvironmentModule) GetNearestLootboxByColor(agentId uuid.UUID, color utils.Colour) uuid.UUID {
-	nearestLootbox := uuid.Nil
+	nearestLootbox := e.GetNearestLootbox(e.AgentId)
 	minDist := math.MaxFloat64
 	for _, lootbox := range e.GetLootBoxesByColor(color) {
 		if e.IsLootboxNearAudi(lootbox.GetID()) {
@@ -86,9 +93,6 @@ func (e *EnvironmentModule) GetNearestLootboxByColor(agentId uuid.UUID, color ut
 			minDist = dist
 			nearestLootbox = lootbox.GetID()
 		}
-	}
-	if nearestLootbox == uuid.Nil {
-		return e.GetNearestLootbox(e.AgentId)
 	}
 	return nearestLootbox
 }
@@ -182,6 +186,10 @@ func (e *EnvironmentModule) GetBikerWithMaxSocialCapital(sc *SocialCapital) (uui
 			}
 		}
 	}
+
+	// if maxSCAgentId == uuid.Nil {
+	// 	panic("No biker found with max social capital")
+	// }
 	return maxSCAgentId, maxSC
 }
 
@@ -197,6 +205,10 @@ func (e *EnvironmentModule) GetBikerWithMinSocialCapital(sc *SocialCapital) (uui
 			}
 		}
 	}
+
+	// if minSCAgentId == uuid.Nil {
+	// 	panic("No biker found with min social capital")
+	// }
 	return minSCAgentId, minSC
 }
 

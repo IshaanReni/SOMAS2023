@@ -33,7 +33,7 @@ const DragCoefficient float64 = 0.5 // Drag coefficient can be optimised in expe
 
 const MovingDepletion float64 = 0.01 // proportionality of energy loss
 
-const LimboEnergyPenalty float64 = -0.25 // amount of energy lost per round when off a bike
+const LimboEnergyPenalty float64 = -0.05 // amount of energy lost per round when off a bike
 
 const DeliberativeDemocracyPenalty float64 = 0.05 // amount of energy lost per vote in a deliberative democracy
 const LeadershipDemocracyPenalty float64 = 0.025  // amount of energy lost per vote in a leadership democracy
