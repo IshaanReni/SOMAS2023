@@ -80,7 +80,7 @@ func (a *AgentTwo) GetAllMessages([]obj.IBaseBiker) []messaging.IMessage[obj.IBa
 	// For team's agent add your own logic on chosing when your biker should send messages and which ones to send (return)
 	wantToSendMsg := true
 	if wantToSendMsg {
-		fmt.Printf("Agent %v is getting all messages\n", a.GetID())
+		// fmt.Printf("Agent %v is getting all messages\n", a.GetID())
 		reputationMsg := a.CreateReputationMessage()
 		kickoutMsg := a.CreatekickoutMessage()
 		lootboxMsg := a.CreateLootboxMessage()

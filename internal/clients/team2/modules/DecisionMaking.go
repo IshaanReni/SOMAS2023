@@ -43,7 +43,7 @@ func (dm *DecisionModule) MakeAcceptAgentDecision(inputs DecisionInputs) bool {
 func (dm *DecisionModule) MakeBikeChangeDecision(inputs DecisionInputs) (bool, uuid.UUID) {
 	// Logic to decide on bike change
 	shouldChangeBike := false
-	bikeID := uuid.Nil
+	bikeID := inputs.Enviornment.BikeId
 	if inputs.SocialCapital.GetAverage(inputs.SocialCapital.SocialCapital) < LeaveBikeThreshold {
 		shouldChangeBike = true
 		bikeID = inputs.Enviornment.GetBikeWithMaximumSocialCapital(inputs.SocialCapital)

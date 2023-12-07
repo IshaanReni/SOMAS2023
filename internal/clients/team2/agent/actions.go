@@ -8,16 +8,35 @@ import (
 	"SOMAS2023/internal/common/voting"
 	"fmt"
 	"maps"
+	"math"
 	"math/rand"
+	"runtime"
 
 	"github.com/google/uuid"
 )
+
+func (a *AgentTwo) GetFellowBikers() []objects.IBaseBiker {
+	bikes := a.Modules.Environment.GameState.GetMegaBikes()
+	if _, ok := bikes[a.GetBike()]; !ok {
+		return []objects.IBaseBiker{}
+	}
+	bike := bikes[a.GetBike()]
+	fellowBikers := make([]objects.IBaseBiker, 0)
+	for _, biker := range bike.GetAgents() {
+		if biker.GetBikeStatus() {
+			fellowBikers = append(fellowBikers, biker)
+		}
+	}
+
+	return fellowBikers
+}
 
 // We vote for ourselves and the agent with the highest social capital.
 func (a *AgentTwo) VoteDictator() voting.IdVoteMap {
 	votes := make(voting.IdVoteMap)
 	agentId, _ := a.Modules.Environment.GetBikerWithMaxSocialCapital(a.Modules.SocialCapital)
-	if len(a.GetFellowBikers()) > 1 && agentId != a.GetID() {
+
+	if len(a.GetFellowBikers()) > 1 && agentId != a.GetID() && agentId != uuid.Nil {
 		fellowBikers := a.GetFellowBikers()
 		for _, fellowBiker := range fellowBikers {
 			if fellowBiker.GetID() == agentId || fellowBiker.GetID() == a.GetID() {
@@ -45,6 +64,10 @@ func (a *AgentTwo) DecideWeights(action utils.Action) map[uuid.UUID]float64 {
 	weights := make(map[uuid.UUID]float64)
 	agents := a.GetFellowBikers()
 	for _, agent := range agents {
+		if agent.GetEnergyLevel() <= 0 || !agent.GetBikeStatus() {
+			fmt.Println("Agent is dead or is not on a bike")
+			continue
+		}
 		// if agent Id is not in the a.Modules.SocialCapital.SocialCapital map, set the weight to 0.5 (neither trust or distrust)
 		if _, ok := a.Modules.SocialCapital.SocialCapital[agent.GetID()]; !ok {
 			// add agent to the map
@@ -61,7 +84,9 @@ func (a *AgentTwo) DecideKickOut() []uuid.UUID {
 	// GetBikerWithMinSocialCapital returns only one agent, if more agents with min SC, it randomly chooses one.
 	kickOut_agents := make([]uuid.UUID, 0)
 	agentId, _ := a.Modules.Environment.GetBikerWithMinSocialCapital(a.Modules.SocialCapital)
-	kickOut_agents = append(kickOut_agents, agentId)
+	if agentId != uuid.Nil {
+		kickOut_agents = append(kickOut_agents, agentId)
+	}
 	return kickOut_agents
 }
 
@@ -88,19 +113,18 @@ func (a *AgentTwo) VoteLeader() voting.IdVoteMap {
 }
 
 func (a *AgentTwo) DecideGovernance() utils.Governance {
-	fmt.Printf("[DecideGovernance] Agent %s has Social Capitals %v\n", a.GetID(), a.Modules.SocialCapital.SocialCapital)
-	a.Modules.SocialCapital.UpdateSocialCapital()
 	// All possibilities except dictatorship.
 	// Need to decide weights for each type of Governance
 	// Can add an invalid weighting so that it is not 50/50
 
-	// randomNumber := rand.Float64()
-	// if randomNumber < democracyWeight {
-	// 	return utils.Democracy
-	// } else {
-	// 	return utils.Leadership
-	// }
-	return utils.Democracy
+	randomNumber := rand.Float64()
+	if randomNumber < democracyWeight {
+		return utils.Democracy
+	} else if randomNumber < democracyWeight+leadershipWeight {
+		return utils.Leadership
+	} else {
+		return utils.Dictatorship
+	}
 }
 
 func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
@@ -113,6 +137,10 @@ func (a *AgentTwo) DecideAllocation() voting.IdVoteMap {
 			if biker.GetID() == id {
 				continue
 			}
+		}
+		if math.IsNaN(socialCapital[id]) {
+			runtime.Breakpoint()
+			panic("dhsd")
 		}
 		// This agent is not a fellow biker - remove it from SC
 		delete(socialCapital, id)
@@ -135,13 +163,17 @@ func (a *AgentTwo) DecideDictatorAllocation() voting.IdVoteMap {
 	result := make(voting.IdVoteMap)
 	for agentID, sc := range socialCapital {
 		result[agentID] = sc / totalSocialCapital
+		if math.IsNaN(result[agentID]) {
+			runtime.Breakpoint()
+			panic("fuck")
+		}
 	}
 	return result
 }
 
 func (a *AgentTwo) VoteForKickout() map[uuid.UUID]int {
 	VoteMap := make(map[uuid.UUID]int)
-	kickoutThreshold := ChangeBikeSocialCapitalThreshold
+	kickoutThreshold := modules.KickThreshold
 	agentTwoID := a.GetID()
 
 	// check all bikers on the bike but ignore ourselves
@@ -227,7 +259,9 @@ func (a *AgentTwo) FinalDirectionVote(proposals map[uuid.UUID]uuid.UUID) voting.
 func (a *AgentTwo) ChangeBike() uuid.UUID {
 	decisionInputs := modules.DecisionInputs{SocialCapital: a.Modules.SocialCapital, Enviornment: a.Modules.Environment, AgentID: a.GetID()}
 	isChangeBike, bikeId := a.Modules.Decision.MakeBikeChangeDecision(decisionInputs)
+	fmt.Printf("[ChangeBike] Agent %s decided to change bike: %v\n", a.GetID(), isChangeBike)
 	if isChangeBike {
+		fmt.Printf("[ChangeBike] Agent %s decided to change bike to: %v\n", a.GetID(), bikeId)
 		return bikeId
 	} else {
 		return a.Modules.Environment.BikeId
@@ -239,9 +273,12 @@ func (bb *AgentTwo) GetGroupID() int {
 }
 
 func (a *AgentTwo) DecideAction() objects.BikerAction {
+	fmt.Printf("[DecideAction] Agent %s has Social Capitals %v\n", a.GetID(), a.Modules.SocialCapital.SocialCapital)
+	a.Modules.SocialCapital.UpdateSocialCapital()
+
 	avgSocialCapital := a.Modules.SocialCapital.GetAverage(a.Modules.SocialCapital.SocialCapital)
 
-	if avgSocialCapital >= ChangeBikeSocialCapitalThreshold {
+	if avgSocialCapital > 0 {
 		// Pedal if members of the bike have high social capital.
 		return objects.Pedal
 	} else {
